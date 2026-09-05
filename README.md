@@ -2,7 +2,8 @@
 
 Platform pembelajaran Bahasa Inggris modern, interaktif, dan gamified yang dilengkapi dengan asisten linguistik, studio pelafalan dual-waveform, AI simulator percakapan, dan laporan perkembangan belajar real-time.
 
-🌐 **Demo Web Publik (GitHub Pages)**: [https://yohanespkc.github.io/BelajarEnglish/](https://yohanespkc.github.io/BelajarEnglish/)
+🌐 **Demo Web Publik (Cloudflare - Super Cepat)**: [https://belajarenglish.surya-yohanes.workers.dev](https://belajarenglish.surya-yohanes.workers.dev)  
+🌐 **Demo Web Alternatif (GitHub Pages)**: [https://yohanespkc.github.io/BelajarEnglish/](https://yohanespkc.github.io/BelajarEnglish/)
 
 ---
 
