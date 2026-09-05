@@ -9,13 +9,18 @@ import {
   Zap, 
   Sparkles, 
   Volume2, 
-  VolumeX 
+  VolumeX,
+  Languages,
+  BookMarked
 } from 'lucide-react';
 import { soundService } from '../services/soundService';
 
 export default function Sidebar({ activeTab, setActiveTab, userState, soundMuted, setSoundMuted }) {
   const navItems = [
+    { id: 'editor', label: 'AI Editor', icon: Sparkles, color: '#00d26a', badge: 'AI CHAT' },
+    { id: 'linguistics', label: 'Tanya Kata & Grammar', icon: BookMarked, color: '#1cb0f6', badge: 'LINGUIST' },
     { id: 'learn', label: 'Belajar', icon: BookOpen, color: '#58cc02' },
+    { id: 'translator', label: 'AI Translator', icon: Languages, color: '#58cc02', badge: 'LOCAL AI' },
     { id: 'pronunciation', label: 'Pronunciation', icon: Mic, color: '#1cb0f6', badge: 'PRO' },
     { id: 'roleplay', label: 'AI Roleplay', icon: MessageSquare, color: '#ce82ff', badge: 'AI' },
     { id: 'madness', label: 'Match Game', icon: Zap, color: '#ffc800' },

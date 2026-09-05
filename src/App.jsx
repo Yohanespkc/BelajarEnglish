@@ -2,22 +2,31 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import HeaderNav from './components/HeaderNav';
 import LearningPath from './components/LearningPath';
+import LocalTranslatorView from './components/LocalTranslatorView';
 import PronunciationStudio from './components/PronunciationStudio';
 import AIRoleplayView from './components/AIRoleplayView';
 import MatchMadnessView from './components/MatchMadnessView';
 import LeaderboardView from './components/LeaderboardView';
 import ShopView from './components/ShopView';
 import ProfileView from './components/ProfileView';
+import EnglishEditorChatbotView from './components/EnglishEditorChatbotView';
+import LinguisticsTutorView from './components/LinguisticsTutorView';
 import LessonModal from './components/LessonModal';
 import { storageService } from './services/storageService';
 import { soundService } from './services/soundService';
+import { activityLoggerService } from './services/activityLoggerService';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('learn');
+  const [activeTab, setActiveTab] = useState('editor');
   const [userState, setUserState] = useState(() => storageService.getUserState());
   const [theme, setTheme] = useState('dark');
   const [soundMuted, setSoundMuted] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
+
+  // Start activity session when project runs
+  useEffect(() => {
+    activityLoggerService.startSession();
+  }, []);
 
   // Sync state to LocalStorage
   useEffect(() => {
@@ -60,6 +69,16 @@ export default function App() {
         completedLessons: newCompleted
       };
     });
+
+    activityLoggerService.logActivity({
+      type: 'lesson',
+      title: `Menyelesaikan Pelajaran: ${completedLesson.title || 'Materi Belajar'}`,
+      detail: `Memperoleh +${completedLesson.xpReward} XP dan +20 Permata (Gems).`,
+      score: 100,
+      xpEarned: completedLesson.xpReward,
+      metadata: { lessonId: completedLesson.id }
+    });
+
     setActiveLesson(null);
   };
 
@@ -125,10 +144,31 @@ export default function App() {
           toggleTheme={toggleTheme}
         />
 
+        {activeTab === 'editor' && (
+          <EnglishEditorChatbotView
+            userState={userState}
+            onAddXp={handleAddXp}
+          />
+        )}
+
+        {activeTab === 'linguistics' && (
+          <LinguisticsTutorView
+            _userState={userState}
+            onAddXp={handleAddXp}
+          />
+        )}
+
         {activeTab === 'learn' && (
           <LearningPath
             userState={userState}
             onStartLesson={handleStartLesson}
+          />
+        )}
+
+        {activeTab === 'translator' && (
+          <LocalTranslatorView
+            userState={userState}
+            onAddXp={handleAddXp}
           />
         )}
 
