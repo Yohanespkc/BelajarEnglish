@@ -17,16 +17,16 @@ import { soundService } from '../services/soundService';
 
 export default function Sidebar({ activeTab, setActiveTab, userState, soundMuted, setSoundMuted }) {
   const navItems = [
-    { id: 'editor', label: 'AI Editor', icon: Sparkles, color: '#00d26a', badge: 'AI CHAT' },
-    { id: 'linguistics', label: 'Tanya Kata & Grammar', icon: BookMarked, color: '#1cb0f6', badge: 'LINGUIST' },
-    { id: 'learn', label: 'Belajar', icon: BookOpen, color: '#58cc02' },
-    { id: 'translator', label: 'AI Translator', icon: Languages, color: '#58cc02', badge: 'LOCAL AI' },
-    { id: 'pronunciation', label: 'Pronunciation', icon: Mic, color: '#1cb0f6', badge: 'PRO' },
-    { id: 'roleplay', label: 'AI Roleplay', icon: MessageSquare, color: '#ce82ff', badge: 'AI' },
-    { id: 'madness', label: 'Match Game', icon: Zap, color: '#ffc800' },
-    { id: 'leaderboard', label: 'Liga Top', icon: Trophy, color: '#ff9600' },
-    { id: 'shop', label: 'Toko', icon: ShoppingBag, color: '#1cb0f6' },
-    { id: 'profile', label: 'Profil Saya', icon: User, color: '#ff4b4b' },
+    { id: 'editor', label: 'AI Editor', icon: Sparkles, color: '#a855f7', badge: 'AI CHAT' },
+    { id: 'linguistics', label: 'Tanya Kata & Grammar', icon: BookMarked, color: '#8b5cf6', badge: 'LINGUIST' },
+    { id: 'learn', label: 'Belajar', icon: BookOpen, color: '#10b981' },
+    { id: 'translator', label: 'AI Translator', icon: Languages, color: '#6366f1', badge: 'LOCAL AI' },
+    { id: 'pronunciation', label: 'Pronunciation', icon: Mic, color: '#38bdf8', badge: 'PRO' },
+    { id: 'roleplay', label: 'AI Roleplay', icon: MessageSquare, color: '#ec4899', badge: 'AI' },
+    { id: 'madness', label: 'Match Game', icon: Zap, color: '#f59e0b' },
+    { id: 'leaderboard', label: 'Liga Top', icon: Trophy, color: '#f59e0b' },
+    { id: 'shop', label: 'Toko', icon: ShoppingBag, color: '#8b5cf6' },
+    { id: 'profile', label: 'Profil Saya', icon: User, color: '#f43f5e' },
   ];
 
   const handleNavClick = (id) => {
@@ -125,22 +125,24 @@ export default function Sidebar({ activeTab, setActiveTab, userState, soundMuted
           align-items: center;
           gap: 12px;
           padding: 0 12px 24px 12px;
-          border-bottom: 2px solid var(--border-color);
+          border-bottom: 1px solid var(--border-color);
           margin-bottom: 16px;
         }
 
         .logo-badge {
           font-size: 2rem;
-          background: rgba(88, 204, 2, 0.15);
+          background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.18));
+          border: 1px solid rgba(139, 92, 246, 0.35);
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
           border-radius: 12px;
           padding: 4px 8px;
         }
 
         .sidebar-logo h2 {
           font-size: 1.4rem;
-          font-weight: 900;
-          letter-spacing: -0.5px;
-          background: linear-gradient(135deg, #58cc02 0%, #1cb0f6 100%);
+          font-weight: 800;
+          letter-spacing: -0.3px;
+          background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -175,20 +177,22 @@ export default function Sidebar({ activeTab, setActiveTab, userState, soundMuted
         }
 
         .nav-btn.active {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(139, 92, 246, 0.12);
           border-color: var(--nav-color);
           color: var(--nav-color);
+          box-shadow: 0 0 16px -2px rgba(139, 92, 246, 0.25);
         }
 
         .nav-badge {
           margin-left: auto;
-          background: var(--blue-primary);
+          background: var(--primary-bloom);
           color: #fff;
           font-size: 0.65rem;
-          font-weight: 900;
-          padding: 2px 6px;
+          font-weight: 800;
+          padding: 2px 7px;
           border-radius: 6px;
           text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
         .sidebar-footer {

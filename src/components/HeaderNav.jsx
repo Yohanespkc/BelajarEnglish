@@ -43,9 +43,9 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
           position: sticky;
           top: 0;
           z-index: 90;
-          background: rgba(19, 31, 36, 0.85);
-          backdrop-filter: blur(12px);
-          border-bottom: 2px solid var(--border-color);
+          background: rgba(21, 22, 34, 0.85);
+          backdrop-filter: blur(14px);
+          border-bottom: 1px solid var(--border-color);
           padding: 12px 20px;
           display: flex;
           align-items: center;
@@ -54,7 +54,7 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
         }
 
         body.light-theme .top-header {
-          background: rgba(247, 249, 250, 0.85);
+          background: rgba(248, 249, 253, 0.85);
         }
 
         .user-profile-summary {
@@ -65,14 +65,15 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
 
         .avatar-chip {
           font-size: 1.5rem;
-          background: var(--bg-card);
-          border: 2px solid var(--border-color);
+          background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.15));
+          border: 1px solid rgba(139, 92, 246, 0.4);
           border-radius: 50%;
           width: 40px;
           height: 40px;
           display: flex;
           align-items: center;
           justify-content: center;
+          box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
         }
 
         .xp-badge {
@@ -82,13 +83,13 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
 
         .xp-level {
           font-size: 0.75rem;
-          font-weight: 900;
+          font-weight: 800;
           color: var(--yellow-primary);
         }
 
         .xp-val {
           font-size: 0.85rem;
-          font-weight: 800;
+          font-weight: 700;
           color: var(--text-main);
         }
 
@@ -104,37 +105,43 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
           gap: 6px;
           padding: 6px 12px;
           background: var(--bg-card);
-          border: 2px solid var(--border-color);
+          border: 1px solid var(--border-color);
           border-radius: 20px;
-          font-weight: 800;
-          font-size: 0.9rem;
+          font-weight: 700;
+          font-size: 0.88rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .stat-chip.streak {
-          border-color: rgba(255, 150, 0, 0.3);
+          border-color: rgba(249, 115, 22, 0.4);
           color: var(--orange-primary);
         }
 
         .stat-chip.gems {
-          border-color: rgba(28, 176, 246, 0.3);
-          color: var(--blue-primary);
+          border-color: rgba(99, 102, 241, 0.4);
+          color: var(--accent-iris);
         }
 
         .stat-chip.hearts {
-          border-color: rgba(255, 75, 75, 0.3);
+          border-color: rgba(244, 63, 94, 0.4);
           color: var(--red-primary);
         }
 
         .theme-toggle-btn {
           background: var(--bg-card);
-          border: 2px solid var(--border-color);
+          border: 1px solid var(--border-color);
           padding: 8px;
           border-radius: 50%;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.2s ease;
+          transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+          border-color: var(--primary-bloom);
+          transform: scale(1.08);
         }
 
         .theme-toggle-btn:hover {

@@ -1,51 +1,86 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Source+Code+Pro:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Duolingo Modern Palette */
-  --green-primary: #58cc02;
-  --green-shadow: #46a302;
-  --green-light: #d7ffb8;
-  
-  --blue-primary: #1cb0f6;
-  --blue-shadow: #1899d6;
-  --blue-light: #ddf4ff;
+  /* Tweakcn Midnight Bloom Palette (Dark Mode Default) */
+  --bg-primary: #151622;
+  --bg-card: #1e2030;
+  --bg-card-hover: #272a3f;
+  --text-main: #f1f2f8;
+  --text-sub: #9da2be;
+  --border-color: #2f334c;
 
-  --yellow-primary: #ffc800;
-  --yellow-shadow: #e5b200;
-  --yellow-light: #fff8d6;
+  /* Midnight Bloom Floral & Royal Orchid Accents */
+  --primary-bloom: #8b5cf6;
+  --primary-bloom-dark: #6d28d9;
+  --bloom-glow: rgba(139, 92, 246, 0.25);
+  --secondary-floral: #701a75;
+  --accent-iris: #6366f1;
+  --accent-rose: #ec4899;
 
-  --orange-primary: #ff9600;
-  --orange-shadow: #e08400;
+  /* Theme Button & Badge Colors */
+  --purple-primary: #8b5cf6;
+  --purple-shadow: #6d28d9;
+  --purple-light: #f3e8ff;
 
-  --purple-primary: #ce82ff;
-  --purple-shadow: #b45be6;
+  --blue-primary: #6366f1;
+  --blue-shadow: #4f46e5;
+  --blue-light: #e0e7ff;
 
-  --red-primary: #ff4b4b;
-  --red-shadow: #ea2b2b;
-  --red-light: #ffdfe0;
+  --green-primary: #10b981;
+  --green-shadow: #059669;
+  --green-light: #d1fae5;
 
-  --bg-primary: #131f24;
-  --bg-card: #182830;
-  --bg-card-hover: #203540;
-  --text-main: #ffffff;
-  --text-sub: #9ca3af;
-  --border-color: #2b3d47;
-  
-  --font-family: 'Nunito', 'Outfit', system-ui, -apple-system, sans-serif;
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
+  --yellow-primary: #f59e0b;
+  --yellow-shadow: #d97706;
+  --yellow-light: #fef3c7;
+
+  --orange-primary: #f97316;
+  --orange-shadow: #c2410c;
+
+  --red-primary: #f43f5e;
+  --red-shadow: #e11d48;
+  --red-light: #ffe4e6;
+
+  /* Typography & Geometry */
+  --font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: 'Source Code Pro', monospace;
+
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
 
   --shadow-3d: 0 4px 0 var(--border-color);
+  --shadow-bloom: 0 8px 24px -4px var(--bloom-glow);
 }
 
 body.light-theme {
-  --bg-primary: #f7f9fa;
+  /* Tweakcn Midnight Bloom (Light Mode) */
+  --bg-primary: #f8f9fd;
   --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
-  --text-main: #1f2937;
-  --text-sub: #6b7280;
-  --border-color: #e5e7eb;
+  --bg-card-hover: #f1f3f9;
+  --text-main: #181926;
+  --text-sub: #5a5f78;
+  --border-color: #e2e5f1;
+
+  --primary-bloom: #7c3aed;
+  --primary-bloom-dark: #5b21b6;
+  --bloom-glow: rgba(124, 58, 237, 0.15);
+  
+  --purple-primary: #7c3aed;
+  --purple-shadow: #5b21b6;
+
+  --blue-primary: #4f46e5;
+  --blue-shadow: #3730a3;
+
+  --green-primary: #059669;
+  --green-shadow: #047857;
+
+  --yellow-primary: #d97706;
+  --yellow-shadow: #b45309;
+
+  --red-primary: #e11d48;
+  --red-shadow: #be123c;
 }
 
 * {
@@ -61,6 +96,10 @@ body {
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.06) 0px, transparent 50%);
+  background-attachment: fixed;
 }
 
 /* Custom Scrollbar */
@@ -74,24 +113,26 @@ body {
   background: var(--border-color);
   border-radius: 4px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-bloom);
+}
 
-/* 3D Button Effects (Duolingo Style) */
+/* 3D Button Effects (Midnight Bloom Style) */
 .btn-3d {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-weight: 800;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 14px 24px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  padding: 12px 22px;
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
   user-select: none;
-  transition: all 0.1s ease;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
 }
 
@@ -101,7 +142,7 @@ body {
   box-shadow: 0 4px 0 var(--green-shadow);
 }
 .btn-green:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.08);
 }
 .btn-green:active {
   transform: translateY(4px);
@@ -114,7 +155,7 @@ body {
   box-shadow: 0 4px 0 var(--blue-shadow);
 }
 .btn-blue:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.08);
 }
 .btn-blue:active {
   transform: translateY(4px);
@@ -122,12 +163,13 @@ body {
 }
 
 .btn-purple {
-  background-color: var(--purple-primary);
+  background: linear-gradient(135deg, var(--purple-primary) 0%, var(--accent-rose) 100%);
   color: #fff;
   box-shadow: 0 4px 0 var(--purple-shadow);
 }
 .btn-purple:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
 }
 .btn-purple:active {
   transform: translateY(4px);
@@ -137,14 +179,15 @@ body {
 .btn-secondary {
   background-color: var(--bg-card);
   color: var(--text-main);
-  border: 2px solid var(--border-color);
-  box-shadow: 0 4px 0 var(--border-color);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 3px 0 var(--border-color);
 }
 .btn-secondary:hover {
   background-color: var(--bg-card-hover);
+  border-color: var(--primary-bloom);
 }
 .btn-secondary:active {
-  transform: translateY(4px);
+  transform: translateY(3px);
   box-shadow: 0 0 0 var(--border-color);
 }
 
@@ -174,26 +217,28 @@ body {
 /* Glassmorphic Cards */
 .glass-card {
   background: var(--bg-card);
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 20px;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: var(--shadow-bloom);
 }
 
-/* Pulse Animation for active node */
+/* Pulse Animation for active node with Midnight Bloom Orchid Glow */
 @keyframes nodePulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(88, 204, 2, 0.6);
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 15px rgba(88, 204, 2, 0);
+    box-shadow: 0 0 0 16px rgba(139, 92, 246, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(88, 204, 2, 0);
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
   }
 }
 
