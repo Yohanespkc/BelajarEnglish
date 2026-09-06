@@ -3,12 +3,41 @@ import { Zap, Timer, Award, Play } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { soundService } from '../services/soundService';
 
+// Fisher-Yates shuffle
+const shuffleList = (arr) => {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+};
+
+// Guarantee left and right are not aligned row-by-row
+const createDerangedPairs = (pairs) => {
+  if (!pairs || pairs.length <= 1) return { left: pairs || [], right: pairs || [] };
+  const left = shuffleList(pairs);
+  let right = shuffleList(pairs);
+  let attempts = 0;
+  while (attempts < 40 && right.some((r, idx) => r.id === left[idx].id)) {
+    right = shuffleList(pairs);
+    attempts++;
+  }
+  if (right.some((r, idx) => r.id === left[idx].id)) {
+    right = [...left.slice(1), left[0]];
+  }
+  return { left, right };
+};
+
 export default function MatchMadnessView({ userState, onAddXp, onAddGems }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [score, setScore] = useState(0);
   const [selectedLeft, setSelectedLeft] = useState(null);
+  const [selectedRight, setSelectedRight] = useState(null);
   const [matchedIds, setMatchedIds] = useState([]);
+  const [leftPairs, setLeftPairs] = useState([]);
+  const [rightPairs, setRightPairs] = useState([]);
 
   const pairs = [
     { id: 1, english: "Coffee", indonesian: "Kopi" },
@@ -37,29 +66,69 @@ export default function MatchMadnessView({ userState, onAddXp, onAddGems }) {
     return () => clearInterval(timer);
   }, [isPlaying, timeLeft, score]);
 
+  const initRound = () => {
+    const { left, right } = createDerangedPairs(pairs);
+    setLeftPairs(left);
+    setRightPairs(right);
+    setMatchedIds([]);
+    setSelectedLeft(null);
+    setSelectedRight(null);
+  };
+
   const handleStartGame = () => {
     soundService.playClick();
     setIsPlaying(true);
     setTimeLeft(60);
     setScore(0);
-    setMatchedIds([]);
-    setSelectedLeft(null);
+    initRound();
   };
 
   const handleMatchClick = (pair, side) => {
     if (!isPlaying) return;
+    soundService.playClick();
 
     if (side === 'left') {
-      soundService.playClick();
-      setSelectedLeft(pair.id);
-    } else if (side === 'right') {
-      if (selectedLeft === pair.id) {
-        soundService.playCorrect();
-        setMatchedIds((prev) => [...prev, pair.id]);
-        setScore((s) => s + 1);
-        setSelectedLeft(null);
+      if (selectedRight !== null) {
+        if (selectedRight === pair.id) {
+          soundService.playCorrect();
+          const next = [...matchedIds, pair.id];
+          setMatchedIds(next);
+          setScore((s) => s + 1);
+          setSelectedLeft(null);
+          setSelectedRight(null);
+          if (next.length === pairs.length) {
+            confetti({ particleCount: 40, spread: 50 });
+            setTimeout(() => initRound(), 600);
+          }
+        } else {
+          soundService.playWrong();
+          setSelectedLeft(null);
+          setSelectedRight(null);
+        }
       } else {
-        soundService.playWrong();
+        setSelectedLeft(selectedLeft === pair.id ? null : pair.id);
+      }
+    } else {
+      // side === 'right'
+      if (selectedLeft !== null) {
+        if (selectedLeft === pair.id) {
+          soundService.playCorrect();
+          const next = [...matchedIds, pair.id];
+          setMatchedIds(next);
+          setScore((s) => s + 1);
+          setSelectedLeft(null);
+          setSelectedRight(null);
+          if (next.length === pairs.length) {
+            confetti({ particleCount: 40, spread: 50 });
+            setTimeout(() => initRound(), 600);
+          }
+        } else {
+          soundService.playWrong();
+          setSelectedLeft(null);
+          setSelectedRight(null);
+        }
+      } else {
+        setSelectedRight(selectedRight === pair.id ? null : pair.id);
       }
     }
   };
@@ -97,12 +166,12 @@ export default function MatchMadnessView({ userState, onAddXp, onAddGems }) {
 
           <div className="matching-grid">
             <div className="column">
-              {pairs.map((p) => {
+              {(leftPairs.length > 0 ? leftPairs : pairs).map((p) => {
                 const isDone = matchedIds.includes(p.id);
                 const isSelected = selectedLeft === p.id;
                 return (
                   <button
-                    key={p.id}
+                    key={`m_left_${p.id}`}
                     disabled={isDone}
                     onClick={() => handleMatchClick(p, 'left')}
                     className={`madness-btn ${isDone ? 'done' : ''} ${isSelected ? 'selected' : ''}`}
@@ -113,14 +182,15 @@ export default function MatchMadnessView({ userState, onAddXp, onAddGems }) {
               })}
             </div>
             <div className="column">
-              {pairs.map((p) => {
+              {(rightPairs.length > 0 ? rightPairs : pairs).map((p) => {
                 const isDone = matchedIds.includes(p.id);
+                const isSelected = selectedRight === p.id;
                 return (
                   <button
-                    key={p.id}
+                    key={`m_right_${p.id}`}
                     disabled={isDone}
                     onClick={() => handleMatchClick(p, 'right')}
-                    className={`madness-btn ${isDone ? 'done' : ''}`}
+                    className={`madness-btn ${isDone ? 'done' : ''} ${isSelected ? 'selected' : ''}`}
                   >
                     {p.indonesian}
                   </button>

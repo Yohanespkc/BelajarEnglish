@@ -5,6 +5,38 @@ import { soundService } from '../services/soundService';
 import { speechService } from '../services/speechService';
 import ExplanationModal from './ExplanationModal';
 
+// Fisher-Yates array shuffle helper
+const shuffleList = (arr) => {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+};
+
+// Guarantee that no matching item is in the same row (derangement)
+const createDerangedPairs = (pairs) => {
+  if (!pairs || pairs.length <= 1) return { left: pairs || [], right: pairs || [] };
+
+  const left = shuffleList(pairs);
+  let right = shuffleList(pairs);
+  let attempts = 0;
+
+  // Ensure right[i].english !== left[i].english for all rows
+  while (attempts < 40 && right.some((r, idx) => r.english === left[idx].english)) {
+    right = shuffleList(pairs);
+    attempts++;
+  }
+
+  // Guaranteed fallback derangement if random attempts collide
+  if (right.some((r, idx) => r.english === left[idx].english)) {
+    right = [...left.slice(1), left[0]];
+  }
+
+  return { left, right };
+};
+
 export default function LessonModal({ lesson, userState, onComplete, onClose, onDeductHeart }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -12,6 +44,9 @@ export default function LessonModal({ lesson, userState, onComplete, onClose, on
   const [wordBankPool, setWordBankPool] = useState([]);
   const [matchedPairs, setMatchedPairs] = useState([]);
   const [selectedPairLeft, setSelectedPairLeft] = useState(null);
+  const [selectedPairRight, setSelectedPairRight] = useState(null);
+  const [shuffledLeftPairs, setShuffledLeftPairs] = useState([]);
+  const [shuffledRightPairs, setShuffledRightPairs] = useState([]);
   
   // Speech Recognition state
   const [isListening, setIsListening] = useState(false);
@@ -31,12 +66,18 @@ export default function LessonModal({ lesson, userState, onComplete, onClose, on
     setWordBankSelected([]);
     setMatchedPairs([]);
     setSelectedPairLeft(null);
+    setSelectedPairRight(null);
     setSpeechTranscript('');
     setSpeechAccuracy(null);
 
     if (currentQuestion) {
       if (currentQuestion.type === 'word_bank' && currentQuestion.wordOptions) {
         setWordBankPool([...currentQuestion.wordOptions]);
+      }
+      if (currentQuestion.type === 'match_pairs' && currentQuestion.pairs) {
+        const { left, right } = createDerangedPairs(currentQuestion.pairs);
+        setShuffledLeftPairs(left);
+        setShuffledRightPairs(right);
       }
       // Auto play audio for listening & speaking
       if (currentQuestion.audioText && (currentQuestion.type === 'listening' || currentQuestion.type === 'speaking')) {
@@ -99,6 +140,52 @@ export default function LessonModal({ lesson, userState, onComplete, onClose, on
       },
       onEnd: () => setIsListening(false)
     });
+  };
+
+  // Handle matching pair clicks (supports bidirectional selection: left-then-right or right-then-left)
+  const handlePairClick = (englishWord, side) => {
+    soundService.playClick();
+
+    if (side === 'left') {
+      if (selectedPairRight) {
+        if (selectedPairRight === englishWord) {
+          soundService.playCorrect();
+          const nextMatched = [...matchedPairs, englishWord];
+          setMatchedPairs(nextMatched);
+          setSelectedPairLeft(null);
+          setSelectedPairRight(null);
+          if (nextMatched.length === currentQuestion.pairs.length) {
+            setStatus('correct');
+          }
+        } else {
+          soundService.playWrong();
+          setSelectedPairLeft(null);
+          setSelectedPairRight(null);
+        }
+      } else {
+        setSelectedPairLeft(selectedPairLeft === englishWord ? null : englishWord);
+      }
+    } else {
+      // side === 'right'
+      if (selectedPairLeft) {
+        if (selectedPairLeft === englishWord) {
+          soundService.playCorrect();
+          const nextMatched = [...matchedPairs, englishWord];
+          setMatchedPairs(nextMatched);
+          setSelectedPairLeft(null);
+          setSelectedPairRight(null);
+          if (nextMatched.length === currentQuestion.pairs.length) {
+            setStatus('correct');
+          }
+        } else {
+          soundService.playWrong();
+          setSelectedPairLeft(null);
+          setSelectedPairRight(null);
+        }
+      } else {
+        setSelectedPairRight(selectedPairRight === englishWord ? null : englishWord);
+      }
+    }
   };
 
   // Check Answer Handler
@@ -288,17 +375,14 @@ export default function LessonModal({ lesson, userState, onComplete, onClose, on
         {currentQuestion.type === 'match_pairs' && (
           <div className="match-pairs-grid">
             <div className="pair-column">
-              {currentQuestion.pairs.map((p, i) => {
+              {(shuffledLeftPairs.length > 0 ? shuffledLeftPairs : currentQuestion.pairs).map((p, i) => {
                 const isMatched = matchedPairs.includes(p.english);
                 const isSelected = selectedPairLeft === p.english;
                 return (
                   <button
-                    key={i}
+                    key={`left_${p.english}_${i}`}
                     disabled={isMatched}
-                    onClick={() => {
-                      soundService.playClick();
-                      setSelectedPairLeft(p.english);
-                    }}
+                    onClick={() => handlePairClick(p.english, 'left')}
                     className={`pair-btn ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}`}
                   >
                     {p.english}
@@ -307,22 +391,15 @@ export default function LessonModal({ lesson, userState, onComplete, onClose, on
               })}
             </div>
             <div className="pair-column">
-              {currentQuestion.pairs.map((p, i) => {
+              {(shuffledRightPairs.length > 0 ? shuffledRightPairs : currentQuestion.pairs).map((p, i) => {
                 const isMatched = matchedPairs.includes(p.english);
+                const isSelected = selectedPairRight === p.english;
                 return (
                   <button
-                    key={i}
+                    key={`right_${p.english}_${i}`}
                     disabled={isMatched}
-                    onClick={() => {
-                      if (selectedPairLeft === p.english) {
-                        soundService.playCorrect();
-                        setMatchedPairs([...matchedPairs, p.english]);
-                        setSelectedPairLeft(null);
-                      } else {
-                        soundService.playWrong();
-                      }
-                    }}
-                    className={`pair-btn ${isMatched ? 'matched' : ''}`}
+                    onClick={() => handlePairClick(p.english, 'right')}
+                    className={`pair-btn ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}`}
                   >
                     {p.indonesian}
                   </button>
@@ -340,8 +417,9 @@ export default function LessonModal({ lesson, userState, onComplete, onClose, on
             <button
               onClick={handleCheckAnswer}
               disabled={
-                (currentQuestion.type === 'multiple_choice' || currentQuestion.type === 'fill_blank' || currentQuestion.type === 'listening') && !selectedOption ||
-                currentQuestion.type === 'word_bank' && wordBankSelected.length === 0
+                ((currentQuestion.type === 'multiple_choice' || currentQuestion.type === 'fill_blank' || currentQuestion.type === 'listening') && !selectedOption) ||
+                (currentQuestion.type === 'word_bank' && wordBankSelected.length === 0) ||
+                (currentQuestion.type === 'match_pairs' && matchedPairs.length < currentQuestion.pairs.length)
               }
               className="btn-3d btn-green check-btn"
             >
@@ -690,25 +768,45 @@ export default function LessonModal({ lesson, userState, onComplete, onClose, on
         }
 
         .pair-btn {
-          padding: 14px;
+          padding: 16px 14px;
           background: var(--bg-card);
-          border: 2px solid var(--border-color);
+          border: 2.5px solid var(--border-color);
           box-shadow: 0 4px 0 var(--border-color);
           border-radius: var(--radius-md);
           font-weight: 800;
+          font-size: 1.05rem;
           color: var(--text-main);
           cursor: pointer;
+          transition: all 0.15s ease-in-out;
+          outline: none;
+          user-select: none;
+          text-align: center;
+        }
+
+        .pair-btn:hover:not(:disabled) {
+          border-color: #1cb0f6;
+          background: rgba(28, 176, 246, 0.06);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 0 var(--border-color);
         }
 
         .pair-btn.selected {
-          border-color: var(--blue-primary);
-          color: var(--blue-primary);
+          border-color: #1cb0f6 !important;
+          background: rgba(28, 176, 246, 0.15) !important;
+          color: #1cb0f6 !important;
+          box-shadow: 0 2px 0 #1899d6 !important;
+          transform: translateY(2px);
         }
 
         .pair-btn.matched {
-          opacity: 0.3;
+          opacity: 0.35;
           cursor: not-allowed;
-          box-shadow: none;
+          box-shadow: none !important;
+          border-color: #58cc02 !important;
+          color: #58cc02 !important;
+          background: rgba(88, 204, 2, 0.08) !important;
+          text-decoration: line-through;
+          transform: scale(0.98);
         }
 
         /* Footer Feedback Bar */
