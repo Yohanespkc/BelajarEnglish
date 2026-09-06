@@ -20,7 +20,7 @@ export default function Sidebar({ activeTab, setActiveTab, userState, soundMuted
     { id: 'editor', label: 'AI Editor', icon: Sparkles, color: '#a855f7', badge: 'AI CHAT' },
     { id: 'linguistics', label: 'Tanya Kata & Grammar', icon: BookMarked, color: '#8b5cf6', badge: 'LINGUIST' },
     { id: 'learn', label: 'Belajar', icon: BookOpen, color: '#10b981' },
-    { id: 'translator', label: 'AI Translator', icon: Languages, color: '#6366f1', badge: 'LOCAL AI' },
+    { id: 'translator', label: 'Padanan & Translasi', icon: Languages, color: '#6366f1', badge: 'ID➔EN' },
     { id: 'pronunciation', label: 'Pronunciation', icon: Mic, color: '#38bdf8', badge: 'PRO' },
     { id: 'roleplay', label: 'AI Roleplay', icon: MessageSquare, color: '#ec4899', badge: 'AI' },
     { id: 'madness', label: 'Match Game', icon: Zap, color: '#f59e0b' },

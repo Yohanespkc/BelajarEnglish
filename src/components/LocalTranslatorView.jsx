@@ -23,8 +23,12 @@ import {
   stopSpeech 
 } from '../services/localTranslatorService';
 import { soundService } from '../services/soundService';
+import IndonesianEnglishWordExplorer from './IndonesianEnglishWordExplorer';
 
 export default function LocalTranslatorView({ userState, onAddXp }) {
+  // Sub-view toggle: 'explorer' (Kamus Padanan & Nuansa ID➔EN) | 'dialog' (Penerjemah Percakapan)
+  const [subTab, setSubTab] = useState('explorer');
+
   // Mode selection: 'human' (Dual Human) or 'ai' (Human vs AI Partner)
   const [partnerMode, setPartnerMode] = useState('ai'); // Default to AI Partner mode
 
@@ -271,8 +275,41 @@ export default function LocalTranslatorView({ userState, onAddXp }) {
 
   return (
     <div className="translator-container">
-      {/* Header Banner */}
-      <header className="translator-header">
+      {/* Top Feature Switcher: Kamus Padanan & Nuansa vs Dialog Translator */}
+      <div className="translator-feature-tabs">
+        <button
+          type="button"
+          className={`feature-tab-btn ${subTab === 'explorer' ? 'active explorer' : ''}`}
+          onClick={() => {
+            soundService.playClick();
+            setSubTab('explorer');
+          }}
+        >
+          <Sparkles size={16} />
+          <span className="tab-title">Kamus Padanan & Nuansa (ID ➔ EN)</span>
+          <span className="tab-pill-mini">PILIHAN KATA TEPAT ✨</span>
+        </button>
+
+        <button
+          type="button"
+          className={`feature-tab-btn ${subTab === 'dialog' ? 'active dialog' : ''}`}
+          onClick={() => {
+            soundService.playClick();
+            setSubTab('dialog');
+          }}
+        >
+          <ArrowRightLeft size={16} />
+          <span className="tab-title">Penerjemah Percakapan Live</span>
+          <span className="tab-pill-mini secondary">DUAL SPEAKER</span>
+        </button>
+      </div>
+
+      {subTab === 'explorer' ? (
+        <IndonesianEnglishWordExplorer onAddXp={onAddXp} />
+      ) : (
+        <>
+          {/* Header Banner */}
+          <header className="translator-header">
         <div className="header-left">
           <div className="translator-icon-badge">
             <Cpu size={28} color="#58cc02" />
@@ -1173,7 +1210,76 @@ export default function LocalTranslatorView({ userState, onAddXp }) {
           from { opacity: 0.85; }
           to { opacity: 1; }
         }
+
+        /* Top Feature Sub-Tab Bar */
+        .translator-feature-tabs {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 24px;
+          background: rgba(0, 0, 0, 0.25);
+          padding: 6px;
+          border-radius: var(--radius-lg, 16px);
+          border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+        }
+
+        .feature-tab-btn {
+          background: transparent;
+          border: none;
+          color: var(--text-sub, #94a3b8);
+          padding: 12px 18px;
+          border-radius: var(--radius-md, 12px);
+          font-size: 0.92rem;
+          font-weight: 800;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          transition: all 0.2s ease;
+        }
+
+        .feature-tab-btn:hover {
+          color: var(--text-main, #ffffff);
+          background: rgba(255, 255, 255, 0.04);
+        }
+
+        .feature-tab-btn.active.explorer {
+          background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(99, 102, 241, 0.15));
+          color: #00e5ff;
+          border: 1px solid rgba(0, 229, 255, 0.3);
+          box-shadow: 0 4px 14px rgba(0, 229, 255, 0.15);
+        }
+
+        .feature-tab-btn.active.dialog {
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+          color: #818cf8;
+          border: 1px solid rgba(99, 102, 241, 0.3);
+          box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+        }
+
+        .tab-pill-mini {
+          font-size: 0.68rem;
+          font-weight: 800;
+          background: #f59e0b;
+          color: #111;
+          padding: 2px 8px;
+          border-radius: 10px;
+        }
+
+        .tab-pill-mini.secondary {
+          background: rgba(255, 255, 255, 0.12);
+          color: var(--text-sub, #94a3b8);
+        }
+
+        @media (max-width: 640px) {
+          .translator-feature-tabs {
+            grid-template-columns: 1fr;
+          }
+        }
       `}</style>
+        </>
+      )}
     </div>
   );
 }
