@@ -82,41 +82,80 @@ export const PROVIDER_METADATA = {
 const STORAGE_KEY = 'belajarenglish_ai_config';
 
 export const aiProviderService = {
+  // Sanitize model to always match the active provider
+  sanitizeModelForProvider(provider, rawModel) {
+    const meta = PROVIDER_METADATA[provider] || PROVIDER_METADATA[AI_PROVIDERS.GROQ];
+    if (!rawModel) return meta.defaultModel;
+
+    const model = String(rawModel).trim();
+
+    if (provider === AI_PROVIDERS.GEMINI) {
+      if (!model.startsWith('gemini') || model === 'gemini-1.5-flash') {
+        return meta.defaultModel || 'gemini-flash-latest';
+      }
+      return model;
+    }
+
+    if (provider === AI_PROVIDERS.GROQ) {
+      if (model.startsWith('gemini') || model.startsWith('gpt-') || model.includes(':')) {
+        return meta.defaultModel || 'llama-3.3-70b-versatile';
+      }
+      return model;
+    }
+
+    if (provider === AI_PROVIDERS.OPENAI) {
+      if (model.startsWith('gemini') || model.startsWith('llama-') || model.includes(':')) {
+        return meta.defaultModel || 'gpt-4o-mini';
+      }
+      return model;
+    }
+
+    if (provider === AI_PROVIDERS.OLLAMA) {
+      if (model.startsWith('gemini') || model.startsWith('llama-3.3-70b-versatile') || model.startsWith('gpt-')) {
+        return meta.defaultModel || 'gemma3:4b';
+      }
+      return model;
+    }
+
+    return model || meta.defaultModel;
+  },
+
   // Get active configuration from storage or fallback to env vars
   getConfig() {
+    let parsed = {};
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          provider: parsed.provider || AI_PROVIDERS.GROQ,
-          groqApiKey: parsed.groqApiKey || import.meta.env?.VITE_GROQ_API_KEY || '',
-          geminiApiKey: parsed.geminiApiKey || import.meta.env?.VITE_GEMINI_API_KEY || '',
-          openaiApiKey: parsed.openaiApiKey || import.meta.env?.VITE_OPENAI_API_KEY || '',
-          openaiBaseUrl: parsed.openaiBaseUrl || 'https://api.openai.com/v1',
-          ollamaBaseUrl: parsed.ollamaBaseUrl || '/api/ollama',
-          selectedModel: parsed.selectedModel || PROVIDER_METADATA[parsed.provider || AI_PROVIDERS.GROQ]?.defaultModel || 'llama-3.3-70b-versatile',
-          autoFallback: parsed.autoFallback !== false
-        };
+        parsed = JSON.parse(saved);
       }
     } catch (e) {
       console.warn('Failed to parse AI config from localStorage:', e);
     }
 
-    // Default configuration (Prioritize Groq if env key exists, or default to Groq for ease of use)
+    const legacyGeminiKey = localStorage.getItem('belajarenglish_gemini_api_key') || '';
+    const legacyGroqKey = localStorage.getItem('belajarenglish_groq_api_key') || '';
     const envGroq = import.meta.env?.VITE_GROQ_API_KEY || '';
     const envGemini = import.meta.env?.VITE_GEMINI_API_KEY || '';
-    const initialProvider = envGroq ? AI_PROVIDERS.GROQ : (envGemini ? AI_PROVIDERS.GEMINI : AI_PROVIDERS.GROQ);
+
+    const rawApiKey = parsed.apiKey || '';
+    const provider = parsed.provider || (envGroq ? AI_PROVIDERS.GROQ : (envGemini ? AI_PROVIDERS.GEMINI : AI_PROVIDERS.GROQ));
+
+    const geminiApiKey = parsed.geminiApiKey || (parsed.provider === AI_PROVIDERS.GEMINI ? rawApiKey : '') || legacyGeminiKey || envGemini;
+    const groqApiKey = parsed.groqApiKey || (parsed.provider === AI_PROVIDERS.GROQ ? rawApiKey : '') || legacyGroqKey || envGroq;
+    const openaiApiKey = parsed.openaiApiKey || (parsed.provider === AI_PROVIDERS.OPENAI ? rawApiKey : '') || import.meta.env?.VITE_OPENAI_API_KEY || '';
+
+    const rawModel = parsed.selectedModel || parsed.model;
+    const selectedModel = this.sanitizeModelForProvider(provider, rawModel);
 
     return {
-      provider: initialProvider,
-      groqApiKey: envGroq,
-      geminiApiKey: envGemini,
-      openaiApiKey: '',
-      openaiBaseUrl: 'https://api.openai.com/v1',
-      ollamaBaseUrl: '/api/ollama',
-      selectedModel: PROVIDER_METADATA[initialProvider]?.defaultModel || 'llama-3.3-70b-versatile',
-      autoFallback: true
+      provider,
+      groqApiKey,
+      geminiApiKey,
+      openaiApiKey,
+      openaiBaseUrl: parsed.openaiBaseUrl || 'https://api.openai.com/v1',
+      ollamaBaseUrl: parsed.ollamaBaseUrl || '/api/ollama',
+      selectedModel,
+      autoFallback: parsed.autoFallback !== false
     };
   },
 
@@ -125,6 +164,9 @@ export const aiProviderService = {
     try {
       const current = this.getConfig();
       const updated = { ...current, ...newConfig };
+      if (updated.provider) {
+        updated.selectedModel = this.sanitizeModelForProvider(updated.provider, updated.selectedModel);
+      }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       window.dispatchEvent(new CustomEvent('belajarenglish_ai_config_updated', { detail: updated }));
       return updated;
@@ -260,11 +302,11 @@ export const aiProviderService = {
     }
   },
 
-  // Central Chat Completion dispatcher
+  // Central Chat Completion dispatcher - Guarantees unified AI usage across all features
   async chatCompletion({ messages, systemPrompt = '', model = null, temperature = 0.35, jsonMode = false }) {
     const config = this.getConfig();
     const provider = config.provider;
-    const targetModel = model || config.selectedModel || PROVIDER_METADATA[provider]?.defaultModel;
+    const targetModel = this.sanitizeModelForProvider(provider, model || config.selectedModel);
 
     // Prepare unified messages array with system prompt if provided
     const unifiedMessages = [];
@@ -353,9 +395,9 @@ export const aiProviderService = {
         };
       }
 
-      const geminiModel = (targetModel && targetModel !== 'gemini-1.5-flash') 
+      const geminiModel = (targetModel && targetModel.startsWith('gemini') && targetModel !== 'gemini-1.5-flash') 
         ? targetModel 
-        : ((config.selectedModel && config.selectedModel !== 'gemini-1.5-flash') ? config.selectedModel : 'gemini-flash-latest');
+        : 'gemini-flash-latest';
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${key.trim()}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

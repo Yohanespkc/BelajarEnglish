@@ -17,17 +17,36 @@ import {
 } from 'lucide-react';
 import { 
   translateOffline, 
+  translateWithAI,
   generateLocalAiResponse,
+  generateAiPartnerResponse,
   OfflineSpeechRecognition, 
   speakText, 
   stopSpeech 
 } from '../services/localTranslatorService';
+import { aiProviderService, PROVIDER_METADATA } from '../services/aiProviderService';
 import { soundService } from '../services/soundService';
 import IndonesianEnglishWordExplorer from './IndonesianEnglishWordExplorer';
 
 export default function LocalTranslatorView({ userState, onAddXp }) {
   // Sub-view toggle: 'explorer' (Kamus Padanan & Nuansa ID➔EN) | 'dialog' (Penerjemah Percakapan)
   const [subTab, setSubTab] = useState('explorer');
+
+  // Unified AI Engine configuration
+  const [aiConfig, setAiConfig] = useState(() => aiProviderService.getConfig());
+  const [isAiThinking, setIsAiThinking] = useState(false);
+
+  useEffect(() => {
+    const handleConfigUpdate = (e) => {
+      if (e.detail) {
+        setAiConfig(e.detail);
+      }
+    };
+    window.addEventListener('belajarenglish_ai_config_updated', handleConfigUpdate);
+    return () => window.removeEventListener('belajarenglish_ai_config_updated', handleConfigUpdate);
+  }, []);
+
+  const activeAiMeta = PROVIDER_METADATA[aiConfig.provider] || PROVIDER_METADATA.groq;
 
   // Mode selection: 'human' (Dual Human) or 'ai' (Human vs AI Partner)
   const [partnerMode, setPartnerMode] = useState('ai'); // Default to AI Partner mode
@@ -112,62 +131,66 @@ export default function LocalTranslatorView({ userState, onAddXp }) {
     setLangB(temp);
   };
 
-  // Process Translation for a given speaker and text
-  const processTranslation = (speaker, text, fromLang, toLang) => {
+  // Process Translation for a given speaker and text using Unified AI Engine
+  const processTranslation = async (speaker, text, fromLang, toLang) => {
     if (!text || !text.trim()) return;
 
     setIsProcessing(true);
     soundService.playClick();
 
-    setTimeout(() => {
-      // Local AI Offline Translation Engine
-      const sourceLangCode = fromLang.code.startsWith('id') ? 'id' : 'en';
-      const translation = translateOffline(text, sourceLangCode);
+    const sourceLangCode = fromLang.code.startsWith('id') ? 'id' : 'en';
+    const targetLangCode = toLang.code.startsWith('en') ? 'en' : 'id';
 
-      const newItem = {
-        id: Date.now(),
-        speaker,
-        isAi: speaker === 'B' && partnerMode === 'ai',
-        speakerName: speaker === 'A' ? `Pembicara A (${fromLang.label})` : (partnerMode === 'ai' ? 'AI Partner (Bot)' : `Pembicara B (${fromLang.label})`),
-        originalText: text.trim(),
-        translatedText: translation,
-        fromLang: fromLang.label,
-        toLang: toLang.label,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
+    const result = await translateWithAI(text, sourceLangCode, targetLangCode);
+    const translationText = typeof result === 'object' ? result.text : result;
+    const sourceEngine = typeof result === 'object' ? result.source : activeAiMeta.name;
 
-      setHistory((prev) => [...prev, newItem]);
-      setIsProcessing(false);
+    const newItem = {
+      id: Date.now(),
+      speaker,
+      isAi: speaker === 'B' && partnerMode === 'ai',
+      speakerName: speaker === 'A' ? `Pembicara A (${fromLang.label})` : (partnerMode === 'ai' ? `AI Partner (${activeAiMeta.name})` : `Pembicara B (${fromLang.label})`),
+      originalText: text.trim(),
+      translatedText: translationText,
+      fromLang: fromLang.label,
+      toLang: toLang.label,
+      sourceEngine,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
 
-      // Play audio of the translated output automatically (TTS)
-      speakText(translation, toLang.code);
+    setHistory((prev) => [...prev, newItem]);
+    setIsProcessing(false);
 
-      // Reward XP for practicing translation
-      if (onAddXp) {
-        onAddXp(5);
-      }
+    // Play audio of the translated output automatically (TTS)
+    speakText(translationText, toLang.code);
 
-      // If in AI Partner mode and Speaker A just spoke, generate AI Bot Response automatically!
-      if (partnerMode === 'ai' && speaker === 'A') {
-        triggerAiBotResponse(text);
-      }
-    }, 300);
+    // Reward XP for practicing translation
+    if (onAddXp) {
+      onAddXp(5);
+    }
+
+    // If in AI Partner mode and Speaker A just spoke, generate AI Bot Response automatically!
+    if (partnerMode === 'ai' && speaker === 'A') {
+      triggerAiBotResponse(text);
+    }
   };
 
-  // Trigger Automatic AI Bot Response (Offline AI Knowledge)
-  const triggerAiBotResponse = (userQueryText) => {
-    setTimeout(() => {
-      const aiResponse = generateLocalAiResponse(userQueryText);
+  // Trigger Automatic AI Bot Response using Unified AI Engine
+  const triggerAiBotResponse = async (userQueryText) => {
+    setIsAiThinking(true);
+    try {
+      const aiResponse = await generateAiPartnerResponse(userQueryText);
       
       const aiItem = {
         id: Date.now() + 1,
         speaker: 'B',
         isAi: true,
-        speakerName: 'AI Partner (Bot)',
+        speakerName: `AI Partner (${activeAiMeta.name})`,
         originalText: aiResponse.englishText,
         translatedText: aiResponse.indonesianText,
         fromLang: 'English',
         toLang: 'Bahasa Indonesia',
+        sourceEngine: aiResponse.source || activeAiMeta.name,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
@@ -175,7 +198,11 @@ export default function LocalTranslatorView({ userState, onAddXp }) {
 
       // Speak out AI response in English
       speakText(aiResponse.englishText, 'en-US');
-    }, 800);
+    } catch (err) {
+      console.warn('Bot response error:', err);
+    } finally {
+      setIsAiThinking(false);
+    }
   };
 
   // Start Speech Recognition for Speaker A or B
@@ -315,8 +342,9 @@ export default function LocalTranslatorView({ userState, onAddXp }) {
             <Cpu size={28} color="#58cc02" />
           </div>
           <div>
-            <div className="badge-offline">
-              <span className="pulse-dot"></span> 100% LOCAL AI OFFLINE
+            <div className="badge-offline" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span className="pulse-dot"></span> 
+              <span>AI Engine: <strong>{activeAiMeta.name}</strong> ({aiConfig.selectedModel})</span>
             </div>
             <h1 className="header-title">Live Dual-Speaker & AI Translator</h1>
             <p className="header-desc">

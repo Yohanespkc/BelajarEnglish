@@ -55,6 +55,12 @@ export default function AISettingsModal({ isOpen, onClose }) {
     setActiveTab(providerId);
     setTestResult(null);
     loadModelsForProvider(providerId);
+    // Auto-sync model for the selected provider
+    setConfig((prev) => ({
+      ...prev,
+      provider: providerId,
+      selectedModel: aiProviderService.sanitizeModelForProvider(providerId, prev.selectedModel)
+    }));
   };
 
   const handleTestConnection = async () => {
@@ -80,10 +86,11 @@ export default function AISettingsModal({ isOpen, onClose }) {
 
   const handleSave = () => {
     soundService.playClick();
+    const sanitizedModel = aiProviderService.sanitizeModelForProvider(activeTab, config.selectedModel);
     const updated = aiProviderService.saveConfig({
       ...config,
       provider: activeTab,
-      selectedModel: config.selectedModel || PROVIDER_METADATA[activeTab]?.defaultModel
+      selectedModel: sanitizedModel
     });
     setConfig(updated);
     onClose();

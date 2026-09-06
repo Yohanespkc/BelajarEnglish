@@ -21,6 +21,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { nuanceDictionaryService, QUICK_SUGGESTION_WORDS } from '../services/nuanceDictionaryService';
+import { aiProviderService, PROVIDER_METADATA } from '../services/aiProviderService';
 import { soundService } from '../services/soundService';
 import { speechService } from '../services/speechService';
 
@@ -28,6 +29,19 @@ export default function IndonesianEnglishWordExplorer({ onAddXp }) {
   const [searchTerm, setSearchTerm] = useState('manusia');
   const [activeResult, setActiveResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [aiConfig, setAiConfig] = useState(() => aiProviderService.getConfig());
+
+  useEffect(() => {
+    const handleConfigUpdate = (e) => {
+      if (e.detail) {
+        setAiConfig(e.detail);
+      }
+    };
+    window.addEventListener('belajarenglish_ai_config_updated', handleConfigUpdate);
+    return () => window.removeEventListener('belajarenglish_ai_config_updated', handleConfigUpdate);
+  }, []);
+
+  const activeAiMeta = PROVIDER_METADATA[aiConfig.provider] || PROVIDER_METADATA.groq;
   const [playingAudioId, setPlayingAudioId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [isListening, setIsListening] = useState(false);
@@ -160,9 +174,12 @@ export default function IndonesianEnglishWordExplorer({ onAddXp }) {
             <Sparkles size={14} color="#f59e0b" />
             <span>Kamus Padanan & Nuansa Bahasa Indonesia ➔ Inggris</span>
           </span>
+          <span className="engine-source-pill" title="AI Engine yang aktif di seluruh fitur aplikasi">
+            <Cpu size={12} />
+            <span>AI: {activeAiMeta.name}</span>
+          </span>
           {activeResult?.source && (
-            <span className="engine-source-pill">
-              <Cpu size={12} />
+            <span className="engine-source-pill" style={{ opacity: 0.85 }}>
               <span>{activeResult.source}</span>
             </span>
           )}

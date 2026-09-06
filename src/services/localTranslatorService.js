@@ -1,7 +1,9 @@
 /**
- * Local Translator Service (100% Offline AI Translation Engine)
- * Combines offline pattern translation engine, Speech-to-Text (STT), and Text-to-Speech (TTS).
+ * Local Translator Service (Unified AI & Smart Offline Translation Engine)
+ * Combines active AI Provider (Gemini / Groq / Ollama / OpenAI), offline pattern translation engine, Speech-to-Text (STT), and Text-to-Speech (TTS).
  */
+
+import { aiProviderService } from './aiProviderService';
 
 // Offline Translation Dictionary & Pattern Database for ID <-> EN
 const DICTIONARY_ID_TO_EN = {
@@ -420,4 +422,88 @@ export function generateLocalAiResponse(userQuery) {
     indonesianText: `Itu adalah pertanyaan yang menarik tentang "${userQuery}". Saya setuju dengan pemikiran Anda! Ceritakan lebih banyak tentang apa yang Anda pikirkan.`
   };
 }
+
+/**
+ * Unified AI Translator: Translates speech / text using active AI Provider (Gemini / Groq / Ollama / OpenAI)
+ * Falls back gracefully to offline pattern dictionary if AI is offline or unavailable.
+ */
+export async function translateWithAI(text, sourceLangCode = 'id', targetLangCode = 'en') {
+  if (!text || !text.trim()) return '';
+
+  const cleanText = text.trim();
+  const sourceIsIndonesian = sourceLangCode.startsWith('id');
+  const fromLang = sourceIsIndonesian ? 'Bahasa Indonesia' : 'English';
+  const toLang = sourceIsIndonesian ? 'English' : 'Bahasa Indonesia';
+
+  try {
+    const response = await aiProviderService.chatCompletion({
+      systemPrompt: `You are an expert, fluent bilingual translator between ${fromLang} and ${toLang}. Output ONLY the direct translated sentence naturally and accurately. Do NOT include quotation marks, disclaimers, notes, or extra words.`,
+      messages: [{ role: 'user', content: cleanText }],
+      temperature: 0.1
+    });
+
+    if (response && response.content && response.content.trim()) {
+      const translated = response.content.trim().replace(/^["'`]|["'`]$/g, '').trim();
+      return {
+        text: translated,
+        source: `${response.providerName} (${response.modelUsed})`,
+        isAiGenerated: true
+      };
+    }
+  } catch (err) {
+    console.warn('AI Translation unavailable, falling back to offline dictionary:', err);
+  }
+
+  // Graceful fallback to offline dictionary
+  const fallback = translateOffline(cleanText, sourceIsIndonesian ? 'id' : 'en');
+  return {
+    text: fallback,
+    source: 'Smart Offline Fallback',
+    isAiGenerated: false
+  };
+}
+
+/**
+ * Unified AI Partner Bot: Generates conversational response using active AI Provider
+ * Falls back gracefully to local heuristic answers if offline.
+ */
+export async function generateAiPartnerResponse(userQueryText) {
+  if (!userQueryText || !userQueryText.trim()) {
+    return generateLocalAiResponse('halo');
+  }
+
+  try {
+    const response = await aiProviderService.chatCompletion({
+      systemPrompt: `You are a supportive, friendly English conversation partner for an Indonesian student.
+Respond naturally in English (1-2 sentences) to keep the conversation going, and provide the Indonesian translation.
+STRICTLY return valid JSON with:
+{
+  "englishText": "Your natural spoken response in English",
+  "indonesianText": "Arti kalimat tersebut dalam Bahasa Indonesia"
+}`,
+      messages: [{ role: 'user', content: userQueryText.trim() }],
+      temperature: 0.5,
+      jsonMode: true
+    });
+
+    if (response && response.content) {
+      let clean = response.content.trim();
+      if (clean.startsWith('```json')) clean = clean.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      else if (clean.startsWith('```')) clean = clean.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      const parsed = JSON.parse(clean);
+      if (parsed.englishText && parsed.indonesianText) {
+        return {
+          englishText: parsed.englishText.trim(),
+          indonesianText: parsed.indonesianText.trim(),
+          source: `${response.providerName} (${response.modelUsed})`
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('AI Partner chat failed, falling back to offline heuristics:', err);
+  }
+
+  return generateLocalAiResponse(userQueryText);
+}
+
 
