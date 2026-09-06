@@ -78,7 +78,7 @@ class ActivityLoggerService {
   }
 
   // Log a new activity item
-  logActivity({ type, title, detail, score = null, xpEarned = 0, metadata = {} }) {
+  logActivity({ type, title, detail, score = null, xpEarned = 0, tokensEarned = 0, metadata = {} }) {
     if (!this.currentSessionId) {
       this.startSession();
     }
@@ -89,11 +89,12 @@ class ActivityLoggerService {
       sessionId: this.currentSessionId,
       timestamp: new Date(now).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       date: new Date(now).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-      type, // 'editor' | 'linguistics' | 'pronunciation' | 'lesson' | 'game'
+      type, // 'editor' | 'linguistics' | 'pronunciation' | 'lesson' | 'game' | 'roleplay'
       title,
       detail,
       score,
       xpEarned,
+      tokensEarned,
       metadata
     };
 
@@ -108,6 +109,7 @@ class ActivityLoggerService {
       if (current) {
         current.activitiesCount = (current.activitiesCount || 0) + 1;
         current.xpGained = (current.xpGained || 0) + xpEarned;
+        current.tokensGained = (current.tokensGained || 0) + tokensEarned;
         localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
       }
     } catch (e) {
@@ -143,7 +145,8 @@ class ActivityLoggerService {
         date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
         time: 'Sesi Awal',
         activitiesCount: 3,
-        xpGained: 60
+        xpGained: 60,
+        tokensGained: 30
       }
     ];
   }
@@ -163,6 +166,7 @@ class ActivityLoggerService {
       pronunciation: activities.filter(a => a.type === 'pronunciation').length,
       lesson: activities.filter(a => a.type === 'lesson').length,
       game: activities.filter(a => a.type === 'game').length,
+      roleplay: activities.filter(a => a.type === 'roleplay').length,
     };
 
     // Pronunciation average score
@@ -173,13 +177,15 @@ class ActivityLoggerService {
 
     // Total XP logged
     const totalLoggedXp = activities.reduce((acc, a) => acc + (a.xpEarned || 0), 0);
+    const totalLoggedTokens = activities.reduce((acc, a) => acc + (a.tokensEarned || 0), 0);
 
     return {
       totalSessions,
       totalActivities,
       distribution,
       avgPronScore,
-      totalLoggedXp
+      totalLoggedXp,
+      totalLoggedTokens
     };
   }
 

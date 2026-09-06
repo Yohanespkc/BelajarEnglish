@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Flame, Gem, Heart, Sun, Moon, Sparkles, Settings } from 'lucide-react';
+import { Flame, Gem, Heart, Sun, Moon, Sparkles, Settings, Award } from 'lucide-react';
 import { soundService } from '../services/soundService';
 import { aiProviderService, PROVIDER_METADATA } from '../services/aiProviderService';
+import { honorScoringService } from '../services/honorScoringService';
 import AISettingsModal from './AISettingsModal';
 
 export default function HeaderNav({ userState, theme, toggleTheme }) {
@@ -19,6 +20,7 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
   }, []);
 
   const activeProviderName = PROVIDER_METADATA[aiConfig.provider]?.name || 'AI Engine';
+  const honorInfo = honorScoringService.getHonorTitle(userState.tokens || 150);
 
   return (
     <>
@@ -28,6 +30,15 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
           <div className="xp-badge">
             <span className="xp-level">LVL {Math.floor(userState.xp / 100) + 1}</span>
             <span className="xp-val">{userState.xp} XP</span>
+          </div>
+
+          {/* Honorary Title Badge */}
+          <div 
+            className="honor-title-chip" 
+            title={`Gelar Kehormatan: ${honorInfo.name} (${honorInfo.nameId}) - Perlu ${honorInfo.tokensNeeded} token lagi menuju gelar berikutnya`}
+          >
+            <span className="honor-icon">{honorInfo.icon}</span>
+            <span className="honor-name">{honorInfo.name}</span>
           </div>
         </div>
 
@@ -45,6 +56,15 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
             <span className="ai-btn-text">{activeProviderName}</span>
             <Settings size={13} className="gear-icon" />
           </button>
+
+          {/* Honor Tokens Counter */}
+          <div 
+            className="stat-chip tokens" 
+            title={`Token Kehormatan: ${userState.tokens || 150} Token (Dapatkan dari Skor S & A di AI Roleplay & Latihan)`}
+          >
+            <span className="token-icon">🪙</span>
+            <span className="stat-val">{userState.tokens || 150}</span>
+          </div>
 
           {/* Streak Counter */}
           <div className="stat-chip streak" title="Hari Streak Berturut-turut">
@@ -130,6 +150,25 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
           color: var(--text-main);
         }
 
+        .honor-title-chip {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 12px;
+          background: linear-gradient(135deg, rgba(255, 200, 0, 0.15), rgba(206, 130, 255, 0.12));
+          border: 1px solid rgba(255, 200, 0, 0.4);
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 800;
+          color: #ffc800;
+          box-shadow: 0 2px 8px rgba(255, 200, 0, 0.15);
+          cursor: default;
+        }
+
+        .honor-title-chip .honor-icon {
+          font-size: 1rem;
+        }
+
         .stats-row {
           display: flex;
           align-items: center;
@@ -147,6 +186,12 @@ export default function HeaderNav({ userState, theme, toggleTheme }) {
           font-weight: 700;
           font-size: 0.88rem;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-chip.tokens {
+          border-color: rgba(255, 200, 0, 0.4);
+          background: rgba(255, 200, 0, 0.08);
+          color: #ffc800;
         }
 
         .stat-chip.streak {

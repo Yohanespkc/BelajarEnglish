@@ -89,13 +89,17 @@ export default function App() {
     }));
   };
 
-  // XP / Gem modifiers
+  // XP / Gem / Token modifiers
   const handleAddXp = (amount) => {
     setUserState((prev) => ({ ...prev, xp: prev.xp + amount }));
   };
 
   const handleAddGems = (amount) => {
     setUserState((prev) => ({ ...prev, gems: prev.gems + amount }));
+  };
+
+  const handleAddTokens = (amount) => {
+    setUserState((prev) => ({ ...prev, tokens: Math.max(0, (prev.tokens || 0) + amount) }));
   };
 
   const handleBuyItem = (item) => {
@@ -183,6 +187,7 @@ export default function App() {
           <AIRoleplayView
             userState={userState}
             onAddXp={handleAddXp}
+            onAddTokens={handleAddTokens}
           />
         )}
 
@@ -191,6 +196,7 @@ export default function App() {
             userState={userState}
             onAddXp={handleAddXp}
             onAddGems={handleAddGems}
+            onAddTokens={handleAddTokens}
           />
         )}
 
@@ -211,6 +217,7 @@ export default function App() {
           <ProfileView
             userState={userState}
             onResetProgress={handleResetProgress}
+            onAddTokens={handleAddTokens}
           />
         )}
       </main>

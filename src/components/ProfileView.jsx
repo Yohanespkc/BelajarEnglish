@@ -8,17 +8,31 @@ import {
   Copy, 
   Check, 
   Trash2, 
-  Filter
+  Filter,
+  Trophy,
+  Award,
+  Sparkles,
+  ChevronRight,
+  Shield,
+  Star,
+  Zap,
+  Target,
+  Layers,
+  BookOpen
 } from 'lucide-react';
 import { soundService } from '../services/soundService';
 import { activityLoggerService } from '../services/activityLoggerService';
+import { honorScoringService, HONORARY_TITLES } from '../services/honorScoringService';
 
-export default function ProfileView({ userState, onResetProgress }) {
+export default function ProfileView({ userState, onResetProgress, onAddTokens }) {
   const [activities, setActivities] = useState([]);
   const [_sessions, setSessions] = useState([]);
   const [summary, setSummary] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [isCopied, setIsCopied] = useState(false);
+  const [activePrestigeTab, setActivePrestigeTab] = useState('overview'); // 'overview' | 'matrix' | 'ladder'
+
+  const honorInfo = honorScoringService.getHonorTitle(userState?.tokens || 150);
 
   // Load progress report data
   useEffect(() => {
@@ -38,8 +52,10 @@ export default function ProfileView({ userState, onResetProgress }) {
     soundService.playClick();
     if (!summary) return;
 
-    const reportText = `📊 LAPORAN KEMAJUAN BELAJAR ENGLISH (PROGRESS REPORT)
+    const reportText = `📊 LAPORAN KEMAJUAN BELAJAR & GELAR KEHORMATAN (PROGRESS REPORT)
 Nama Pembelajar: ${userState.name}
+Gelar Kehormatan: ${honorInfo.name} (${honorInfo.nameId}) - Tier ${honorInfo.tier} dari 7
+Token Kehormatan: ${userState?.tokens || 150} Token 🪙
 Streak Saat Ini: ${userState.streak} Hari | Total XP: ${userState.xp} XP | Permata: ${userState.gems}
 
 RINGKASAN SESI & AKTIVITAS:
@@ -53,9 +69,8 @@ DISTRIBUSI MODUL:
 - Tanya Kata & Grammar: ${summary.distribution.linguistics} topik
 - Pronunciation & Waveform: ${summary.distribution.pronunciation} rekaman
 - Materi Pelajaran: ${summary.distribution.lesson} unit
-
-AKTIVITAS TERBARU:
-${activities.slice(0, 5).map(a => `• [${a.date} ${a.timestamp}] ${a.title} (+${a.xpEarned} XP)`).join('\n')}
+- AI Roleplay Skenario: ${summary.distribution.roleplay || 0} simulasi
+- Match Game: ${summary.distribution.game || 0} game
 
 Laporan digenerate dari aplikasi BelajarEnglish (LingoMaster)`;
 
@@ -65,7 +80,7 @@ Laporan digenerate dari aplikasi BelajarEnglish (LingoMaster)`;
   };
 
   const handleClearLogs = () => {
-    if (window.confirm("Hapus seluruh catatan riwayat sesi & aktivitas latihan? (XP dan lencana akun Anda tetap aman)")) {
+    if (window.confirm("Hapus seluruh catatan riwayat sesi & aktivitas latihan? (XP, Token, dan lencana akun Anda tetap aman)")) {
       soundService.playClick();
       activityLoggerService.clearLogs();
       loadProgressData();
@@ -87,6 +102,8 @@ Laporan digenerate dari aplikasi BelajarEnglish (LingoMaster)`;
         return { label: 'Pronunciation', color: '#ce82ff', bg: 'rgba(206, 130, 255, 0.15)', icon: '🎙️' };
       case 'lesson':
         return { label: 'Materi Belajar', color: '#58cc02', bg: 'rgba(88, 204, 2, 0.15)', icon: '📚' };
+      case 'roleplay':
+        return { label: 'AI Roleplay', color: '#ce82ff', bg: 'rgba(206, 130, 255, 0.15)', icon: '🎭' };
       case 'game':
         return { label: 'Match Game', color: '#ffc800', bg: 'rgba(255, 200, 0, 0.15)', icon: '⚡' };
       default:
@@ -207,6 +224,372 @@ Laporan digenerate dari aplikasi BelajarEnglish (LingoMaster)`;
             <p style={{ fontSize: '0.78rem', color: 'var(--text-sub)', fontWeight: 700, margin: 0 }}>Liga Mingguan</p>
           </div>
         </div>
+
+        {/* 5th Stat Card: Honor Tokens & Title */}
+        <div className="stat-card glass-card" style={{
+          background: 'linear-gradient(135deg, rgba(255, 200, 0, 0.12), rgba(206, 130, 255, 0.08))',
+          border: '2px solid rgba(255, 200, 0, 0.4)',
+          borderRadius: 'var(--radius-md)',
+          padding: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          boxShadow: '0 4px 14px rgba(255, 200, 0, 0.15)'
+        }}>
+          <span style={{ fontSize: '2rem' }}>🪙</span>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, margin: 0, color: '#ffc800' }}>
+              {userState.tokens || 150} Token
+            </h3>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-sub)', fontWeight: 800, margin: 0 }}>
+              Gelar: {honorInfo.name}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* SISTEM SKORING GAME PROFESIONAL & GELAR KEHORMATAN (BARU) */}
+      {/* ========================================================================= */}
+      <div style={{
+        background: 'var(--bg-card)',
+        borderRadius: 'var(--radius-lg)',
+        border: '2px solid rgba(255, 200, 0, 0.35)',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px',
+        boxShadow: '0 8px 28px rgba(255, 200, 0, 0.12)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Glow ambient accent */}
+        <div style={{
+          position: 'absolute',
+          top: '-60px',
+          right: '-60px',
+          width: '200px',
+          height: '200px',
+          background: 'radial-gradient(circle, rgba(255, 200, 0, 0.18) 0%, transparent 70%)',
+          pointerEvents: 'none'
+        }} />
+
+        {/* Section Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '46px',
+              height: '46px',
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, #ffc800, #ff9600)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#000',
+              boxShadow: '0 4px 14px rgba(255, 200, 0, 0.35)'
+            }}>
+              <Trophy size={26} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
+                  Sistem Skoring Profesional & Gelar Kehormatan
+                </h3>
+                <span style={{
+                  background: 'linear-gradient(135deg, rgba(255, 200, 0, 0.2), rgba(206, 130, 255, 0.2))',
+                  color: '#ffc800',
+                  border: '1px solid rgba(255, 200, 0, 0.4)',
+                  padding: '2px 8px',
+                  borderRadius: '10px',
+                  fontSize: '0.72rem',
+                  fontWeight: 900
+                }}>
+                  GAME COMPETITIVE TIER
+                </span>
+              </div>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-sub)', margin: '2px 0 0 0' }}>
+                Raih Skor S & A di AI Roleplay dan latihan untuk mengumpulkan Token Kehormatan & membuka 7 Gelar Bergengsi!
+              </p>
+            </div>
+          </div>
+
+          {/* Prestige Tabs */}
+          <div style={{ display: 'flex', gap: '6px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+            {[
+              { id: 'overview', label: '🌟 Gelar Aktif' },
+              { id: 'matrix', label: '⚖️ Cara Penilaian' },
+              { id: 'ladder', label: '👑 Tangga 7 Gelar' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  soundService.playClick();
+                  setActivePrestigeTab(tab.id);
+                }}
+                style={{
+                  background: activePrestigeTab === tab.id ? 'linear-gradient(135deg, #ffc800, #ff9600)' : 'transparent',
+                  color: activePrestigeTab === tab.id ? '#000' : 'var(--text-sub)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '6px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* TAB 1: OVERVIEW & ACTIVE HONOR TITLE */}
+        {activePrestigeTab === 'overview' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Active Title Banner */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 200, 0, 0.06))',
+              border: '2px solid rgba(255, 200, 0, 0.3)',
+              borderRadius: 'var(--radius-md)',
+              padding: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '20px',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flex: 1, minWidth: '280px' }}>
+                <div style={{
+                  fontSize: '3.6rem',
+                  width: '84px',
+                  height: '84px',
+                  borderRadius: '50%',
+                  background: 'rgba(255, 200, 0, 0.15)',
+                  border: '3px solid #ffc800',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 6px 20px rgba(255, 200, 0, 0.25)'
+                }}>
+                  {honorInfo.icon}
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.74rem', color: '#ffc800', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    👑 GELAR KEHORMATAN AKTIF • TIER {honorInfo.tier} DARI 7
+                  </span>
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: 900, margin: '2px 0 4px 0', color: 'var(--text-main)' }}>
+                    {honorInfo.name} <span style={{ fontSize: '1rem', color: 'var(--text-sub)', fontWeight: 700 }}>({honorInfo.nameId})</span>
+                  </h2>
+                  <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text-sub)', lineHeight: 1.4 }}>
+                    {honorInfo.description}
+                  </p>
+                  <div style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(88, 204, 2, 0.12)', color: '#58cc02', padding: '3px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800 }}>
+                    <Check size={14} /> Hak Istimewa: {honorInfo.perks}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                minWidth: '220px',
+                gap: '8px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '1.8rem' }}>🪙</span>
+                  <div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffc800', lineHeight: 1 }}>
+                      {userState.tokens || 150}
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-sub)', fontWeight: 700 }}>Token Kehormatan</span>
+                  </div>
+                </div>
+
+                {honorInfo.nextTitle && (
+                  <div style={{ width: '100%', marginTop: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-sub)', marginBottom: '4px' }}>
+                      <span>Menuju {honorInfo.nextTitle.name}</span>
+                      <span>{honorInfo.progressToNext}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', background: 'var(--bg-primary)', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                      <div style={{ width: `${honorInfo.progressToNext}%`, height: '100%', background: 'linear-gradient(90deg, #ffc800, #ce82ff)', borderRadius: '6px' }} />
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: '#ffc800', fontWeight: 700, display: 'block', textAlign: 'right', marginTop: '3px' }}>
+                      Butuh {honorInfo.tokensNeeded} Token lagi
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* How Tokens Are Earned in Games */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
+              <div style={{ background: 'var(--bg-primary)', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <Sparkles size={16} color="#ce82ff" />
+                  <strong style={{ fontSize: '0.85rem', color: 'var(--text-main)' }}>AI Roleplay S-Rank</strong>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-sub)' }}>
+                  Jawab pertanyaan skenario dengan tepat & alami untuk meraih hingga <b>+15 Token</b> per giliran.
+                </p>
+              </div>
+
+              <div style={{ background: 'var(--bg-primary)', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <Zap size={16} color="#ffc800" />
+                  <strong style={{ fontSize: '0.85rem', color: 'var(--text-main)' }}>Match Madness Permainan</strong>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-sub)' }}>
+                  Cocokkan kata cepat dalam 60 detik tanpa salah sebaris untuk bonus token kombo.
+                </p>
+              </div>
+
+              <div style={{ background: 'var(--bg-primary)', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <Shield size={16} color="#58cc02" />
+                  <strong style={{ fontSize: '0.85rem', color: 'var(--text-main)' }}>Anti-Jawaban Ngawur</strong>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-sub)' }}>
+                  Jawaban salah atau tidak nyambung dinilai <b>Grade D (0 Token)</b> agar kompetisi tetap adil dan bermutu!
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: 4-PILLAR SCORING MATRIX */}
+        {activePrestigeTab === 'matrix' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
+              <div style={{ background: 'var(--bg-primary)', padding: '14px', borderRadius: '12px', border: '1.5px solid rgba(88, 204, 2, 0.4)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#58cc02', textTransform: 'uppercase' }}>1. Tata Bahasa</span>
+                  <span style={{ background: 'rgba(88, 204, 2, 0.15)', color: '#58cc02', padding: '2px 6px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 900 }}>BOBOT 30%</span>
+                </div>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '0.92rem', color: 'var(--text-main)' }}>Grammar & Syntax</h4>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-sub)', lineHeight: 1.4 }}>
+                  Ketepatan rumus waktu (*tenses*), *subject-verb agreement*, kata depan (*prepositions*), dan konjugasi kata kerja.
+                </p>
+              </div>
+
+              <div style={{ background: 'var(--bg-primary)', padding: '14px', borderRadius: '12px', border: '1.5px solid rgba(28, 176, 246, 0.4)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#1cb0f6', textTransform: 'uppercase' }}>2. Konteks Peran</span>
+                  <span style={{ background: 'rgba(28, 176, 246, 0.15)', color: '#1cb0f6', padding: '2px 6px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 900 }}>BOBOT 35%</span>
+                </div>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '0.92rem', color: 'var(--text-main)' }}>Situational Relevance</h4>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-sub)', lineHeight: 1.4 }}>
+                  Kesesuaian respon terhadap pertanyaan lawan bicara. Jawaban ngawur/off-topic langsung mendapat penalti nilai.
+                </p>
+              </div>
+
+              <div style={{ background: 'var(--bg-primary)', padding: '14px', borderRadius: '12px', border: '1.5px solid rgba(206, 130, 255, 0.4)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#ce82ff', textTransform: 'uppercase' }}>3. Kekayaan Kata</span>
+                  <span style={{ background: 'rgba(206, 130, 255, 0.15)', color: '#ce82ff', padding: '2px 6px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 900 }}>BOBOT 20%</span>
+                </div>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '0.92rem', color: 'var(--text-main)' }}>Lexical Richness</h4>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-sub)', lineHeight: 1.4 }}>
+                  Variasi diksi, *phrasal verbs*, idiom alami, dan terminologi yang tepat untuk skenario (formal vs kasual).
+                </p>
+              </div>
+
+              <div style={{ background: 'var(--bg-primary)', padding: '14px', borderRadius: '12px', border: '1.5px solid rgba(255, 200, 0, 0.4)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#ffc800', textTransform: 'uppercase' }}>4. Kelancaran</span>
+                  <span style={{ background: 'rgba(255, 200, 0, 0.15)', color: '#ffc800', padding: '2px 6px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 900 }}>BOBOT 15%</span>
+                </div>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '0.92rem', color: 'var(--text-main)' }}>Spoken Fluency</h4>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-sub)', lineHeight: 1.4 }}>
+                  Kehalusan struktur kalimat lisan, transisi klausa yang wajar, dan respon yang tidak kaku/sepotong-sepotong.
+                </p>
+              </div>
+            </div>
+
+            {/* Competitive Game Rank Table */}
+            <div style={{ background: 'var(--bg-primary)', borderRadius: '12px', padding: '14px 16px', border: '1px solid var(--border-color)' }}>
+              <h4 style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: 'var(--text-sub)', textTransform: 'uppercase' }}>
+                Tabel Skala Peringkat Game & Hadiah Token:
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+                {[
+                  { grade: 'S+', score: '95 - 100', token: '+15 Token 🪙', label: 'Grandmaster', color: '#ffc800' },
+                  { grade: 'S', score: '90 - 94', token: '+12 Token 🪙', label: 'Flawless', color: '#58cc02' },
+                  { grade: 'A', score: '80 - 89', token: '+8 Token 🪙', label: 'Sharp & Natural', color: '#1cb0f6' },
+                  { grade: 'B', score: '70 - 79', token: '+4 Token 🪙', label: 'Competent', color: '#ce82ff' },
+                  { grade: 'C', score: '50 - 69', token: '+1 Token 🪙', label: 'Needs Polish', color: '#ff9600' },
+                  { grade: 'D', score: '< 50 Poin', token: '0 Token ❌', label: 'Salah / Off-Topic', color: '#ff4b4b' }
+                ].map(r => (
+                  <div key={r.grade} style={{
+                    background: 'var(--bg-card)',
+                    border: `1px solid ${r.color}40`,
+                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: r.color }}>{r.grade}</div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-sub)', fontWeight: 700 }}>{r.score}</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: r.color, margin: '2px 0' }}>{r.token}</div>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text-sub)' }}>{r.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: 7 HONORARY TITLES LADDER */}
+        {activePrestigeTab === 'ladder' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {HONORARY_TITLES.map((t) => {
+              const isCurrent = honorInfo.id === t.id;
+              const isUnlocked = (userState?.tokens || 150) >= t.minTokens;
+              return (
+                <div
+                  key={t.id}
+                  style={{
+                    background: isCurrent ? 'linear-gradient(135deg, rgba(255, 200, 0, 0.15), rgba(206, 130, 255, 0.1))' : 'var(--bg-primary)',
+                    border: isCurrent ? '2px solid #ffc800' : '1px solid var(--border-color)',
+                    borderRadius: '12px',
+                    padding: '12px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '14px',
+                    opacity: isUnlocked ? 1 : 0.65
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '2rem' }}>{t.icon}</span>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: t.badgeColor }}>TIER {t.tier}</span>
+                        <strong style={{ fontSize: '1rem', color: 'var(--text-main)' }}>{t.name}</strong>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)' }}>({t.nameId})</span>
+                        {isCurrent && (
+                          <span style={{ background: '#ffc800', color: '#000', padding: '1px 6px', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 900 }}>
+                            SEDANG AKTIF
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: 'var(--text-sub)' }}>
+                        {t.description} • <i>{t.perks}</i>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 900, color: isUnlocked ? '#58cc02' : 'var(--text-sub)' }}>
+                      {isUnlocked ? 'TERBUKA ✅' : `Butuh ${t.minTokens} Token 🪙`}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ========================================================================= */}
@@ -404,6 +787,10 @@ Laporan digenerate dari aplikasi BelajarEnglish (LingoMaster)`;
               <div style={{ fontSize: '0.82rem', color: 'var(--text-main)' }}>
                 📚 <strong>Materi Belajar:</strong> {summary.distribution.lesson} unit
               </div>
+              <span style={{ color: 'var(--border-color)' }}>•</span>
+              <div style={{ fontSize: '0.82rem', color: '#ce82ff' }}>
+                🎭 <strong>AI Roleplay:</strong> {summary.distribution.roleplay || 0} simulasi
+              </div>
             </div>
           </div>
         )}
@@ -423,7 +810,8 @@ Laporan digenerate dari aplikasi BelajarEnglish (LingoMaster)`;
               { id: 'editor', label: '✍️ AI Editor' },
               { id: 'linguistics', label: '🔍 Tanya Kata' },
               { id: 'pronunciation', label: '🎙️ Pronunciation' },
-              { id: 'lesson', label: '📚 Pelajaran' }
+              { id: 'lesson', label: '📚 Pelajaran' },
+              { id: 'roleplay', label: '🎭 AI Roleplay' }
             ].map(f => (
               <button
                 key={f.id}

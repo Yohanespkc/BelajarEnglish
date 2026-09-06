@@ -22,6 +22,7 @@ const INITIAL_USER_STATE = {
       explanation: "'Want' berarti 'ingin', sedangkan 'suka' adalah 'like'."
     }
   ],
+  tokens: 150, // Honor Tokens for Professional Game Title ladder
   inventory: {
     streakFreeze: 1,
     doubleXp: 0,
@@ -38,7 +39,11 @@ export const storageService = {
     try {
       const data = localStorage.getItem('lingomaster_user_state');
       if (data) {
-        return JSON.parse(data);
+        const parsed = JSON.parse(data);
+        if (parsed.tokens === undefined) {
+          parsed.tokens = 150;
+        }
+        return parsed;
       }
     } catch (e) {
       console.warn("Error reading local storage", e);
