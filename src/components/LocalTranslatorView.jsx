@@ -1210,7 +1210,11 @@ export default function LocalTranslatorView({ userState, onAddXp }) {
           from { opacity: 0.85; }
           to { opacity: 1; }
         }
+      `}</style>
+        </>
+      )}
 
+      <style>{`
         /* Top Feature Sub-Tab Bar */
         .translator-feature-tabs {
           display: grid;
@@ -1278,8 +1282,6 @@ export default function LocalTranslatorView({ userState, onAddXp }) {
           }
         }
       `}</style>
-        </>
-      )}
     </div>
   );
 }

@@ -200,18 +200,145 @@ export const BUILTIN_WORD_DATABASE = {
       { word: 'fiasco', meaning: 'Kegagalan total yang memalukan' }
     ],
     commonMistakes: 'Sering salah: "I want to success" (salah, success adalah kata benda). Yang benar: "I want to succeed" (kata kerja).'
+  },
+
+  'raja': {
+    query: 'raja',
+    summary: 'Kata "raja" paling umum diterjemahkan sebagai "king", namun dalam konteks monarki formal, netral gender, atau kedaulatan negara, terdapat padanan yang jauh lebih presisi.',
+    equivalents: [
+      {
+        word: 'king',
+        ipa: '/kɪŋ/',
+        partOfSpeech: 'Noun',
+        formality: 'Umum & Tradisional',
+        badge: 'MONARKI PRIA',
+        nuanceExplanation: 'Padanan paling langsung dan umum untuk penguasa monarki pria turun-temurun yang memegang takhta dan mahkota.',
+        whenToUse: 'Gunakan untuk raja pria dalam sejarah, dongeng, atau monarki saat ini (misal: King Charles). Untuk penguasa wanita gunakan "queen".',
+        exampleSentenceEn: 'The king delivered a speech to his citizens from the palace.',
+        exampleSentenceId: 'Raja menyampaikan pidato kepada rakyatnya dari istana.'
+      },
+      {
+        word: 'monarch',
+        ipa: '/ˈmɒn.ək/',
+        partOfSpeech: 'Noun',
+        formality: 'Formal & Ketatanegaraan',
+        badge: 'KEPALA MONARKI (NETRAL GENDER)',
+        nuanceExplanation: 'Istilah formal dan netral gender dalam ilmu politik/hukum untuk menyebut raja atau ratu yang memimpin suatu monarki.',
+        whenToUse: 'Bagus untuk artikel berita resmi, dokumen hukum, esai sejarah, atau konstitusi (misal: constitutional monarch).',
+        exampleSentenceEn: 'The United Kingdom is ruled by a constitutional monarch.',
+        exampleSentenceId: 'Britania Raya dipimpin oleh seorang raja/monarki konstitusional.'
+      },
+      {
+        word: 'sovereign',
+        ipa: '/ˈsɒv.rɪn/',
+        partOfSpeech: 'Noun / Adjective',
+        formality: 'Tinggi & Diplomatik',
+        badge: 'KEDAULATAN MUTLAK',
+        nuanceExplanation: 'Menekankan kekuasaan dan otoritas tertinggi yang berdaulat, merdeka, dan tidak tunduk pada kekuasaan mana pun.',
+        whenToUse: 'Dipakai saat membahas kedaulatan kekuasaan tertinggi atas suatu wilayah atau negara.',
+        exampleSentenceEn: 'The sovereign held supreme authority over the entire realm.',
+        exampleSentenceId: 'Penguasa berdaulat (raja) itu memegang otoritas tertinggi atas seluruh wilayah kekuasaan.'
+      },
+      {
+        word: 'tycoon / mogul',
+        ipa: '/taɪˈkuːn/ - /ˈməʊ.ɡəl/',
+        partOfSpeech: 'Noun',
+        formality: 'Bisnis & Jurnalistik',
+        badge: 'FIGURATIF / RAJA BISNIS',
+        nuanceExplanation: 'Makna kiasan/figuratif dalam bahasa Indonesia seperti "raja minyak", "raja properti", atau "raja media" yang menguasai pasar.',
+        whenToUse: 'Jangan terjemahkan "raja minyak" sebagai "oil king". Gunakan "oil tycoon" atau "media mogul".',
+        exampleSentenceEn: 'He made billions of dollars as a real estate tycoon.',
+        exampleSentenceId: 'Dia menghasilkan miliaran dolar sebagai raja (konglomerat) properti.'
+      }
+    ],
+    wordFamily: [
+      { word: 'kingdom', ipa: '/ˈkɪŋ.dəm/', partOfSpeech: 'Noun', meaning: 'Kerajaan / wilayah kekuasaan raja' },
+      { word: 'kingship', ipa: '/ˈkɪŋ.ʃɪp/', partOfSpeech: 'Noun', meaning: 'Kedudukan, martabat, atau masa jabatan seorang raja' },
+      { word: 'royalty', ipa: '/ˈrɔɪ.əl.ti/', partOfSpeech: 'Noun', meaning: 'Keluarga kerajaan / kaum bangsawan / royalti' },
+      { word: 'royal', ipa: '/ˈrɔɪ.əl/', partOfSpeech: 'Adjective', meaning: 'Berhubungan dengan raja atau kerajaan (Royal Family)' },
+      { word: 'regal', ipa: '/ˈriː.ɡəl/', partOfSpeech: 'Adjective', meaning: 'Megah, agung, dan berwibawa laksana seorang raja' },
+      { word: 'reign', ipa: '/reɪn/', partOfSpeech: 'Noun / Verb', meaning: 'Masa pemerintahan raja / memerintah sebagai raja' }
+    ],
+    synonyms: [
+      { word: 'monarch', nuance: 'Penguasa monarki formal' },
+      { word: 'sovereign', nuance: 'Penguasa berdaulat tertinggi' },
+      { word: 'ruler', nuance: 'Pemimpin atau penguasa negeri' },
+      { word: 'emperor', nuance: 'Kaisar (memimpin kekaisaran luas dengan banyak kerajaan)' }
+    ],
+    antonyms: [
+      { word: 'subject', meaning: 'Rakyat jelata / warga yang diperintah oleh raja' },
+      { word: 'commoner', meaning: 'Rakyat biasa (bukan keturunan bangsawan)' },
+      { word: 'peasant', meaning: 'Petani kecil / rakyat jelata zaman feodal' },
+      { word: 'servant', meaning: 'Pelayan / abdi' }
+    ],
+    commonMistakes: 'Sering salah: Mengartikan kiasan "raja minyak" sebagai "oil king" (salah). Yang benar dalam bahasa Inggris adalah "oil tycoon" atau "oil magnate".'
+  },
+
+  'pemimpin': {
+    query: 'pemimpin',
+    summary: 'Kata "pemimpin" memiliki spektrum kata dalam bahasa Inggris mulai dari inspirator (leader), atasan kerja (boss), penguasa wilayah (ruler), hingga kepala divisi (head/chief).',
+    equivalents: [
+      {
+        word: 'leader',
+        ipa: '/ˈliː.dər/',
+        partOfSpeech: 'Noun',
+        formality: 'Netral & Positif',
+        badge: 'INSPIRATIF & VISIONER',
+        nuanceExplanation: 'Sosok yang memimpin dengan teladan, integritas, dan visi. Berkonotasi positif dan dihormati sukarela oleh pengikutnya.',
+        whenToUse: 'Bagus untuk pemimpin negara, teladan masyarakat, atau kapten tim olahraga.',
+        exampleSentenceEn: 'A true leader inspires others to dream more, learn more, and do more.',
+        exampleSentenceId: 'Seorang pemimpin sejati menginspirasi orang lain untuk bermimpi lebih banyak, belajar lebih banyak, dan berbuat lebih banyak.'
+      },
+      {
+        word: 'boss',
+        ipa: '/bɒs/',
+        partOfSpeech: 'Noun',
+        formality: 'Percakapan Harian',
+        badge: 'ATASAN KERJA',
+        nuanceExplanation: 'Merujuk pada atasan langsung di kantor yang memberi tugas atau menggaji karyawan. Kadang terkesan otoriter ("bossy").',
+        whenToUse: 'Percakapan santai seputar pekerjaan kantor: "My boss approved my leave".',
+        exampleSentenceEn: 'I need to discuss the new project timeline with my boss tomorrow.',
+        exampleSentenceId: 'Saya perlu mendiskusikan jadwal proyek baru dengan bos/atasan saya besok.'
+      },
+      {
+        word: 'chief / head',
+        ipa: '/tʃiːf/ - /hed/',
+        partOfSpeech: 'Noun',
+        formality: 'Formal & Organisasi',
+        badge: 'KEPALA BAGIAN / SUKU',
+        nuanceExplanation: 'Pemimpin tertinggi dalam divisi, dewan eksekutif (CEO - Chief Executive Officer), atau kepala adat.',
+        whenToUse: 'Gunakan dalam struktur organisasi jabatan resmi: "Head of Marketing", "Police Chief".',
+        exampleSentenceEn: 'She was appointed as the new head of the research department.',
+        exampleSentenceId: 'Dia diangkat sebagai kepala baru departemen penelitian.'
+      }
+    ],
+    wordFamily: [
+      { word: 'leadership', ipa: '/ˈliː.də.ʃɪp/', partOfSpeech: 'Noun', meaning: 'Kepemimpinan / jiwa kepemimpinan' },
+      { word: 'lead', ipa: '/liːd/', partOfSpeech: 'Verb', meaning: 'Memimpin / mengarahkan jalan' },
+      { word: 'leading', ipa: '/ˈliː.dɪŋ/', partOfSpeech: 'Adjective', meaning: 'Terkemuka / unggulan / terdepan' }
+    ],
+    synonyms: [
+      { word: 'guide', nuance: 'Penuntun / pemandu arah' },
+      { word: 'director', nuance: 'Pengarah / direktur pelaksana' },
+      { word: 'commander', nuance: 'Komandan (militer/pasukan)' }
+    ],
+    antonyms: [
+      { word: 'follower', meaning: 'Pengikut / bawahan yang mengikuti' },
+      { word: 'subordinate', meaning: 'Bawahan langsung' }
+    ],
+    commonMistakes: 'Perbedaan konotasi: "Leader" memimpin dengan teladan dan empati, sedangkan "Boss" memimpin berdasarkan jabatan kekuasaan formal.'
   }
 };
 
 export const QUICK_SUGGESTION_WORDS = [
-  { word: 'manusia', hint: 'human vs man vs person' },
+  { word: 'raja', hint: 'king vs monarch vs sovereign vs tycoon' },
+  { word: 'manusia', hint: 'human vs man vs person vs mankind' },
   { word: 'rajin', hint: 'diligent vs hardworking vs studious' },
   { word: 'sukses', hint: 'successful vs succeed vs thrive' },
+  { word: 'pemimpin', hint: 'leader vs boss vs chief' },
   { word: 'adil', hint: 'fair vs just vs impartial' },
   { word: 'marah', hint: 'angry vs furious vs annoyed' },
-  { word: 'pemimpin', hint: 'leader vs boss vs ruler' },
-  { word: 'sulit', hint: 'difficult vs hard vs tough' },
-  { word: 'senang', hint: 'happy vs glad vs delighted' }
+  { word: 'sulit', hint: 'difficult vs hard vs tough' }
 ];
 
 export const nuanceDictionaryService = {
@@ -234,51 +361,49 @@ export const nuanceDictionaryService = {
 
     // 2. Query AI (Google Gemini, Groq, or active provider)
     try {
-      const systemPrompt = `You are a world-class Bilingual Lexicographer, Etymologist, and English-Indonesian Translator.
+      const systemPrompt = `You are an expert Bilingual Lexicographer and English-Indonesian Translator.
 The user will provide ONE Indonesian word (for example: "${cleanWord}").
-Your goal is to give a comprehensive, nuanced English thesaurus breakdown in clear Indonesian so the user knows EXACTLY which English word to choose in any situation.
+Your goal is to give a comprehensive English thesaurus breakdown with clear nuanced differences in Indonesian.
 
-Return STRICTLY valid JSON matching this schema:
+Return STRICTLY valid JSON with these EXACT keys:
 {
   "query": "${cleanWord}",
-  "summary": "Penjelasan ringkas 1-2 kalimat dalam bahasa Indonesia mengenai berbagai spektrum padanan kata ini dalam bahasa Inggris.",
+  "summary": "Penjelasan ringkas 1-2 kalimat dalam bahasa Indonesia mengenai padanan kata ini.",
   "equivalents": [
     {
-      "word": "kata bahasa Inggris",
-      "ipa": "/fonetik IPA/",
-      "partOfSpeech": "Noun / Verb / Adjective / Adverb",
-      "formality": "Netral / Formal / Percakapan Sehari-hari / Sastra / Slang",
-      "badge": "LABEL SINGKAT CIRI UTAMA (misal: SPESIES BIOLOGIS, KETELITIAN, PEKERJA KERAS)",
-      "nuanceExplanation": "Penjelasan mendalam dalam bahasa Indonesia kapan kata ini dipakai dan apa rasa bahasanya dibandingkan kata lainnya.",
-      "whenToUse": "Situasi atau konteks paling tepat menggunakan kata ini.",
-      "exampleSentenceEn": "Contoh kalimat alami dalam bahasa Inggris menggunakan kata ini.",
-      "exampleSentenceId": "Terjemahan contoh kalimat dalam bahasa Indonesia."
+      "word": "English word (e.g. king, monarch, etc.)",
+      "ipa": "/IPA phonetic/",
+      "partOfSpeech": "Noun / Verb / Adjective",
+      "formality": "Formal / Informal / Sastra",
+      "badge": "CIRIKHAS UTAMA",
+      "nuanceExplanation": "Penjelasan nuansa dan rasa bahasa dalam bahasa Indonesia.",
+      "whenToUse": "Kapan tepatnya kata ini digunakan.",
+      "exampleSentenceEn": "Contoh kalimat bahasa Inggris.",
+      "exampleSentenceId": "Arti contoh kalimat dalam bahasa Indonesia."
     }
   ],
   "wordFamily": [
     {
       "word": "kata turunan",
-      "ipa": "/fonetik/",
+      "ipa": "/IPA/",
       "partOfSpeech": "Noun/Adj/Verb/Adv",
       "meaning": "Arti kata turunan dalam bahasa Indonesia"
     }
   ],
   "synonyms": [
     {
-      "word": "sinonim EN",
-      "nuance": "Nuansa atau konteks pemakaiannya dalam bahasa Indonesia"
+      "word": "English synonym",
+      "nuance": "Nuansa pemakaiannya"
     }
   ],
   "antonyms": [
     {
-      "word": "lawan kata EN",
-      "meaning": "Arti lawan kata dalam bahasa Indonesia"
+      "word": "English antonym",
+      "meaning": "Arti lawan kata"
     }
   ],
-  "commonMistakes": "Tips kesalahan umum orang Indonesia saat menggunakan kata-kata tersebut dalam bahasa Inggris (misal perbedaan part of speech atau false friends)."
-}
-
-Provide at least 3-4 distinct English equivalents with clear nuanced differences, at least 4 word family derivatives, at least 3 synonyms, and at least 3 antonyms. No markdown outside JSON.`;
+  "commonMistakes": "Tips kesalahan umum orang Indonesia saat memakai kata ini."
+}`;
 
       const response = await aiProviderService.chatCompletion({
         systemPrompt,
@@ -308,7 +433,7 @@ Provide at least 3-4 distinct English equivalents with clear nuanced differences
     }
   },
 
-  // Parse JSON safely from AI output
+  // Parse JSON safely from AI output with smart normalization
   parseJsonSafely(rawContent, originalWord) {
     let clean = (rawContent || '').trim();
     if (clean.startsWith('```json')) {
@@ -321,15 +446,135 @@ Provide at least 3-4 distinct English equivalents with clear nuanced differences
     if (match) {
       try {
         const parsed = JSON.parse(match[0]);
-        if (Array.isArray(parsed.equivalents) && parsed.equivalents.length > 0) {
-          return parsed;
-        }
+        return this.normalizeParsedResult(parsed, originalWord);
       } catch (e) {
-        console.warn('Failed to parse AI JSON:', e);
+        console.warn('Failed to parse AI JSON, attempting recovery:', e);
       }
     }
 
     return this.generateDynamicFallback(originalWord);
+  },
+
+  // Normalize parsed result to support both English and Indonesian schema keys
+  normalizeParsedResult(parsed, originalWord) {
+    let equivalents = [];
+
+    // Check English schema 'equivalents'
+    if (Array.isArray(parsed.equivalents) && parsed.equivalents.length > 0) {
+      equivalents = parsed.equivalents.map(item => ({
+        word: item.word || item.kata || '',
+        ipa: item.ipa || item.fonetik || '',
+        partOfSpeech: item.partOfSpeech || item.jenis_kata || 'Noun',
+        formality: item.formality || item.formalitas || 'Netral',
+        badge: item.badge || item.label || 'PADANAN KATA',
+        nuanceExplanation: item.nuanceExplanation || item.nuansa || item.penjelasan || '',
+        whenToUse: item.whenToUse || item.kapan_dipakai || item.penggunaan || '',
+        exampleSentenceEn: item.exampleSentenceEn || item.contoh_penggunaan || item.contoh_kalimat || '',
+        exampleSentenceId: item.exampleSentenceId || item.contoh_arti || item.terjemahan || ''
+      }));
+    } else if (Array.isArray(parsed.analisis_nuansa) && parsed.analisis_nuansa.length > 0) {
+      // Check Indonesian schema 'analisis_nuansa'
+      equivalents = parsed.analisis_nuansa.map(item => ({
+        word: item.kata || item.word || '',
+        ipa: item.ipa || item.fonetik || '',
+        partOfSpeech: item.partOfSpeech || item.jenis_kata || 'Noun',
+        formality: item.formality || item.formalitas || 'Formal',
+        badge: item.badge || item.label || 'PADANAN KATA',
+        nuanceExplanation: item.nuansa || item.nuanceExplanation || item.penjelasan || '',
+        whenToUse: item.whenToUse || item.kapan_dipakai || item.penggunaan || '',
+        exampleSentenceEn: item.contoh_penggunaan || item.exampleSentenceEn || item.contoh_kalimat || '',
+        exampleSentenceId: item.contoh_arti || item.exampleSentenceId || item.terjemahan || ''
+      }));
+    } else if (parsed.padanan_utama && typeof parsed.padanan_utama === 'object') {
+      // Check dictionary schema
+      Object.entries(parsed.padanan_utama).forEach(([k, v]) => {
+        const words = Array.isArray(v) ? v : [v];
+        words.forEach(w => {
+          equivalents.push({
+            word: String(w),
+            ipa: '',
+            partOfSpeech: 'Noun',
+            formality: k,
+            badge: k.toUpperCase(),
+            nuanceExplanation: `Padanan kata dalam nuansa ${k}.`,
+            whenToUse: `Digunakan saat mengekspresikan makna ${originalWord} dalam konteks ${k}.`,
+            exampleSentenceEn: `The ${w} is recognized for this quality.`,
+            exampleSentenceId: `Hal tersebut diakui dalam konteks ini.`
+          });
+        });
+      });
+    }
+
+    // Word family normalization
+    let wordFamily = [];
+    if (Array.isArray(parsed.wordFamily) && parsed.wordFamily.length > 0) {
+      wordFamily = parsed.wordFamily.map(wf => ({
+        word: wf.word || wf.istilah || wf.kata || '',
+        ipa: wf.ipa || '',
+        partOfSpeech: wf.partOfSpeech || wf.jenis_kata || 'Word',
+        meaning: wf.meaning || wf.arti || wf.makna || ''
+      }));
+    } else if (parsed.turunan_kata_dan_frasa && typeof parsed.turunan_kata_dan_frasa === 'object') {
+      Object.entries(parsed.turunan_kata_dan_frasa).forEach(([posKey, items]) => {
+        if (Array.isArray(items)) {
+          items.forEach(it => {
+            if (typeof it === 'object') {
+              wordFamily.push({
+                word: it.istilah || it.kata || it.frasa || it.word || '',
+                ipa: it.ipa || '',
+                partOfSpeech: posKey.replace(/_/g, ' '),
+                meaning: it.arti || it.makna || it.meaning || ''
+              });
+            } else {
+              wordFamily.push({
+                word: String(it),
+                ipa: '',
+                partOfSpeech: posKey.replace(/_/g, ' '),
+                meaning: `Bentuk ${posKey}`
+              });
+            }
+          });
+        }
+      });
+    }
+
+    // Synonyms normalization
+    let synonyms = [];
+    const rawSyn = parsed.synonyms || parsed.sinonim_bahasa_inggris || parsed.sinonim || [];
+    if (Array.isArray(rawSyn)) {
+      synonyms = rawSyn.map(s => {
+        if (typeof s === 'object') {
+          return { word: s.word || s.kata || '', nuance: s.nuance || s.nuansa || s.arti || '' };
+        }
+        return { word: String(s), nuance: 'Kata serupa' };
+      });
+    }
+
+    // Antonyms normalization
+    let antonyms = [];
+    const rawAnt = parsed.antonyms || parsed.antonim_bahasa_inggris || parsed.antonim || [];
+    if (Array.isArray(rawAnt)) {
+      antonyms = rawAnt.map(a => {
+        if (typeof a === 'object') {
+          return { word: a.word || a.kata || '', meaning: a.meaning || a.arti || a.makna || '' };
+        }
+        return { word: String(a), meaning: 'Lawan kata' };
+      });
+    }
+
+    if (equivalents.length === 0) {
+      return this.generateDynamicFallback(originalWord);
+    }
+
+    return {
+      query: originalWord,
+      summary: parsed.summary || parsed.ringkasan || `Padanan bahasa Inggris untuk "${originalWord}" memiliki berbagai nuansa sesuai konteks kalimat.`,
+      equivalents,
+      wordFamily,
+      synonyms,
+      antonyms,
+      commonMistakes: parsed.commonMistakes || parsed.kesalahan_umum || parsed.tips || ''
+    };
   },
 
   // Dynamic fallback when AI is unreachable
