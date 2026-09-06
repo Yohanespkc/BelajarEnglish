@@ -384,7 +384,7 @@ export const aiProviderService = {
         contents: geminiContents,
         generationConfig: {
           temperature,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 4096,
           responseMimeType: jsonMode ? 'application/json' : 'text/plain'
         }
       };
@@ -395,31 +395,57 @@ export const aiProviderService = {
         };
       }
 
-      const geminiModel = (targetModel && targetModel.startsWith('gemini') && targetModel !== 'gemini-1.5-flash') 
+      const preferredModel = (targetModel && targetModel.startsWith('gemini') && targetModel !== 'gemini-1.5-flash') 
         ? targetModel 
         : 'gemini-flash-latest';
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${key.trim()}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(35000)
-      });
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `Gemini Error ${response.status}: ${response.statusText}`);
+      const candidateModels = [
+        preferredModel,
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-flash-latest',
+        'gemini-2.0-flash-lite'
+      ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
+
+      let lastError = null;
+      for (const modelToTry of candidateModels) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelToTry}:generateContent?key=${key.trim()}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+            signal: AbortSignal.timeout(30000)
+          });
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            const errMsg = errData.error?.message || `Gemini Error ${response.status}: ${response.statusText}`;
+            console.warn(`Gemini model ${modelToTry} unavailable (${response.status}): ${errMsg}. Trying alternative model...`);
+            lastError = new Error(errMsg);
+            continue;
+          }
+
+          const data = await response.json();
+          const candidate = data.candidates?.[0];
+          const content = candidate?.content?.parts?.map(p => p.text).join('') || '';
+
+          if (content) {
+            return {
+              content,
+              providerName: 'Google Gemini',
+              modelUsed: modelToTry,
+              isAiGenerated: true
+            };
+          }
+        } catch (fetchErr) {
+          console.warn(`Gemini model ${modelToTry} error:`, fetchErr);
+          lastError = fetchErr;
+        }
       }
 
-      const data = await response.json();
-      const candidate = data.candidates?.[0];
-      const content = candidate?.content?.parts?.map(p => p.text).join('') || '';
-
-      return {
-        content,
-        providerName: 'Google Gemini',
-        modelUsed: geminiModel,
-        isAiGenerated: true
-      };
+      if (lastError) {
+        throw lastError;
+      }
     }
 
     // 3. OPENAI / CUSTOM OPENAI COMPATIBLE

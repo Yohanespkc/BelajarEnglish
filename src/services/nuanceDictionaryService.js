@@ -6,6 +6,7 @@
  */
 
 import { aiProviderService } from './aiProviderService';
+import { translateOffline } from './localTranslatorService';
 
 // Built-in lexical database for instant offline access and fast fallbacks
 export const BUILTIN_WORD_DATABASE = {
@@ -327,11 +328,161 @@ export const BUILTIN_WORD_DATABASE = {
       { word: 'subordinate', meaning: 'Bawahan langsung' }
     ],
     commonMistakes: 'Perbedaan konotasi: "Leader" memimpin dengan teladan dan empati, sedangkan "Boss" memimpin berdasarkan jabatan kekuasaan formal.'
+  },
+
+  'ratu': {
+    query: 'ratu',
+    summary: 'Kata "ratu" dalam bahasa Inggris paling umum dipadankan dengan "queen", namun terdapat perbedaan penting antara ratu yang berkuasa mutlak (queen regnant), permaisuri (queen consort), kaisar wanita (empress), hingga kiasan (diva/queen bee).',
+    equivalents: [
+      {
+        word: 'queen',
+        ipa: '/kwiːn/',
+        partOfSpeech: 'Noun',
+        formality: 'Netral / Formal',
+        badge: 'RATU PENGUASA / PERMAISURI',
+        nuanceExplanation: 'Padanan standar paling umum untuk penguasa wanita suatu kerajaan atau istri dari raja yang sedang berkuasa.',
+        whenToUse: 'Dapat digunakan untuk monarki wanita berdaulat (Queen Elizabeth) maupun catur dan kartu remi.',
+        exampleSentenceEn: 'Queen Elizabeth II was the longest-reigning monarch in British history.',
+        exampleSentenceId: 'Ratu Elizabeth II adalah monarki dengan masa tahta terlama dalam sejarah Inggris.'
+      },
+      {
+        word: 'queen regnant',
+        ipa: '/kwiːn ˈreɪɡ.nənt/',
+        partOfSpeech: 'Noun',
+        formality: 'Sangat Formal / Sejarah',
+        badge: 'RATU BERDAULAT SENDIRI',
+        nuanceExplanation: 'Ratu yang memerintah dan memegang kekuasaan monarki atas haknya sendiri (bukan hanya berstatus sebagai istri raja).',
+        whenToUse: 'Gunakan dalam konteks politik formal atau sejarah untuk membedakan dari permaisuri.',
+        exampleSentenceEn: 'She ruled the country as a queen regnant with absolute authority.',
+        exampleSentenceId: 'Dia memerintah negeri itu sebagai ratu berdaulat dengan wewenang mutlak.'
+      },
+      {
+        word: 'queen consort',
+        ipa: '/kwiːn ˈkɒn.sɔːt/',
+        partOfSpeech: 'Noun',
+        formality: 'Formal / Protokol Istana',
+        badge: 'PERMAISURI (ISTRI RAJA)',
+        nuanceExplanation: 'Istri sah dari raja yang sedang bertahta, yang menyandang gelar ratu tetapi wewenang konstitusional ada pada suaminya.',
+        whenToUse: 'Konteks keluarga kerajaan formal untuk membedakan istri raja (misal: Queen Camilla).',
+        exampleSentenceEn: 'Camilla officially received the title of Queen Consort.',
+        exampleSentenceId: 'Camilla secara resmi menerima gelar Ratu Permaisuri (Queen Consort).'
+      },
+      {
+        word: 'empress',
+        ipa: '/ˈem.prəs/',
+        partOfSpeech: 'Noun',
+        formality: 'Formal / Sejarah',
+        badge: 'KAISAR WANITA',
+        nuanceExplanation: 'Pemimpin wanita sebuah kekaisaran (empire) yang posisinya secara hierarki lebih luas daripada ratu kerajaan biasa.',
+        whenToUse: 'Konteks kekaisaran seperti Kekaisaran Romawi Suci, Tiongkok kuno, atau Jepang.',
+        exampleSentenceEn: 'The Empress Wu Zetian was the sole female sovereign of imperial China.',
+        exampleSentenceId: 'Kaisar Wanita Wu Zetian adalah satu-satunya penguasa wanita di era kekaisaran Tiongkok.'
+      },
+      {
+        word: 'queen bee / diva',
+        ipa: '/kwiːn biː/ - /ˈdiː.və/',
+        partOfSpeech: 'Noun (Informal)',
+        formality: 'Kiasan / Gaul',
+        badge: 'RATU GAUL / PANGGUNG',
+        nuanceExplanation: 'Dipakai secara figuratif untuk wanita yang menjadi pusat perhatian, pemimpin kelompok pergaulan, atau "ratu panggung".',
+        whenToUse: 'Percakapan kasual sehari-hari atau dunia hiburan musik/fesyen.',
+        exampleSentenceEn: 'She is widely acclaimed as the pop music diva of this generation.',
+        exampleSentenceId: 'Dia diakui luas sebagai diva (ratu panggung) musik pop generasi ini.'
+      }
+    ],
+    wordFamily: [
+      { word: 'queenship', ipa: '/ˈkwiːn.ʃɪp/', partOfSpeech: 'Noun', meaning: 'Kedudukan atau martabat seorang ratu' },
+      { word: 'queenly', ipa: '/ˈkwiːn.li/', partOfSpeech: 'Adjective', meaning: 'Anggun dan agung laksana seorang ratu' },
+      { word: 'royalty', ipa: '/ˈrɔɪ.əl.ti/', partOfSpeech: 'Noun', meaning: 'Keluarga kerajaan / kaum bangsawan' },
+      { word: 'reign', ipa: '/reɪn/', partOfSpeech: 'Verb / Noun', meaning: 'Bertahta / masa pemerintahan' }
+    ],
+    synonyms: [
+      { word: 'monarch', nuance: 'Kepala monarki formal (bisa ratu atau raja)' },
+      { word: 'sovereign', nuance: 'Penguasa berkedaulatan tinggi' },
+      { word: 'ruler', nuance: 'Pemimpin atau penguasa' }
+    ],
+    antonyms: [
+      { word: 'king', meaning: 'Raja (pasangan monarki pria)' },
+      { word: 'commoner', meaning: 'Rakyat jelata / warga biasa non-bangsawan' },
+      { word: 'subject', meaning: 'Rakyat yang diperintah' }
+    ],
+    commonMistakes: 'Jangan samakan "Queen Regnant" (ratu yang memerintah negerinya sendiri) dengan "Queen Consort" (istri dari raja yang berkuasa).'
+  },
+
+  'pintar': {
+    query: 'pintar',
+    summary: 'Bahasa Inggris memiliki banyak kata untuk "pintar" dengan nuansa berbeda: "smart" (cerdas praktis/solutif), "clever" (cerdik/cepat tanggap), "intelligent" (daya pikir ilmiah/intelektual), dan "bright" (berbakat/cerdas alami).',
+    equivalents: [
+      {
+        word: 'smart',
+        ipa: '/smɑːt/',
+        partOfSpeech: 'Adjective',
+        formality: 'Netral & Paling Umum',
+        badge: 'CERDAS PRAKTIS & CEKATAN',
+        nuanceExplanation: 'Padanan paling populer. Menekankan kepintaran praktis dalam menyelesaikan masalah sehari-hari atau bisnis dengan bijak.',
+        whenToUse: 'Bisa dipakai untuk orang, keputusan bisnis ("smart move"), ataupun teknologi pintar ("smartphone").',
+        exampleSentenceEn: 'She made a smart investment decision that grew her savings.',
+        exampleSentenceId: 'Dia membuat keputusan investasi yang pintar dan menumbuhkan tabungannya.'
+      },
+      {
+        word: 'intelligent',
+        ipa: '/ɪnˈtel.ɪ.dʒənt/',
+        partOfSpeech: 'Adjective',
+        formality: 'Formal & Akademis',
+        badge: 'INTEGRA & ILMIAH',
+        nuanceExplanation: 'Menekankan kapasitas otak, logika mendalam, dan kemampuan analisis kognitif tingkat tinggi.',
+        whenToUse: 'Situasi akademis, kemampuan analisis, atau penalaran ilmiah (Artificial Intelligence).',
+        exampleSentenceEn: 'Dolphins are recognized as highly intelligent marine mammals.',
+        exampleSentenceId: 'Lumba-lumba diakui sebagai mamalia laut yang sangat pintar (cerdas).'
+      },
+      {
+        word: 'clever',
+        ipa: '/ˈklev.ər/',
+        partOfSpeech: 'Adjective',
+        formality: 'Netral',
+        badge: 'CERDIK & AKAL PANJANG',
+        nuanceExplanation: 'Pintar menemukan trik atau cara cerdik di luar kebiasaan. Kadang bisa sedikit berkonotasi "licik" jika disalahgunakan.',
+        whenToUse: 'Memecahkan teka-teki, ide yang cerdik, atau anak kecil yang pintar berargumen.',
+        exampleSentenceEn: 'That was a very clever solution to a complicated problem.',
+        exampleSentenceId: 'Itu adalah solusi yang sangat cerdik untuk masalah yang rumit.'
+      },
+      {
+        word: 'bright',
+        ipa: '/braɪt/',
+        partOfSpeech: 'Adjective',
+        formality: 'Hangat & Memuji',
+        badge: 'BERBAKAT & CEPAT PAHAM',
+        nuanceExplanation: 'Biasanya dipakai untuk memuji anak-anak atau pelajar muda yang cepat menyerap ilmu dan memiliki potensi masa depan cerah.',
+        whenToUse: 'Memuji murid berprestasi di sekolah: "a bright student".',
+        exampleSentenceEn: 'He is a bright young student with a promising future in science.',
+        exampleSentenceId: 'Dia adalah siswa muda yang pintar dengan masa depan cerah di bidang sains.'
+      }
+    ],
+    wordFamily: [
+      { word: 'smartness', ipa: '/ˈsmɑːt.nəs/', partOfSpeech: 'Noun', meaning: 'Kecerdasan / ketangkasan berpikir' },
+      { word: 'intelligence', ipa: '/ɪnˈtel.ɪ.dʒəns/', partOfSpeech: 'Noun', meaning: 'Intelegensi / daya pikir cerdas' },
+      { word: 'intelligently', ipa: '/ɪnˈtel.ɪ.dʒənt.li/', partOfSpeech: 'Adverb', meaning: 'Dengan cerdas dan bijaksana' },
+      { word: 'cleverness', ipa: '/ˈklev.ə.nəs/', partOfSpeech: 'Noun', meaning: 'Kecerdikan / akal panjang' }
+    ],
+    synonyms: [
+      { word: 'brilliant', nuance: 'Sangat luar biasa pintar / jenius' },
+      { word: 'sharp', nuance: 'Tajam pemikirannya / tanggap' },
+      { word: 'gifted', nuance: 'Pintar karena bakat bawaan alami' }
+    ],
+    antonyms: [
+      { word: 'stupid', meaning: 'Bodoh (kasar)' },
+      { word: 'foolish', meaning: 'Konyol / tidak bijak' },
+      { word: 'dumb', meaning: 'Bungkam / bodoh (informal)' },
+      { word: 'slow', meaning: 'Lambat memahami sesuatu' }
+    ],
+    commonMistakes: '"Smart" lebih bernuansa tindakan praktis dan hasil nyata, sedangkan "Intelligent" menggambarkan kapasitas mental bawaan.'
   }
 };
 
 export const QUICK_SUGGESTION_WORDS = [
   { word: 'raja', hint: 'king vs monarch vs sovereign vs tycoon' },
+  { word: 'ratu', hint: 'queen vs empress vs queen consort' },
+  { word: 'pintar', hint: 'smart vs intelligent vs clever vs bright' },
   { word: 'manusia', hint: 'human vs man vs person vs mankind' },
   { word: 'rajin', hint: 'diligent vs hardworking vs studious' },
   { word: 'sukses', hint: 'successful vs succeed vs thrive' },
@@ -365,21 +516,25 @@ export const nuanceDictionaryService = {
 The user will provide ONE Indonesian word (for example: "${cleanWord}").
 Your goal is to give a comprehensive English thesaurus breakdown with clear nuanced differences in Indonesian.
 
-Return STRICTLY valid JSON with these EXACT keys:
+STRICT INSTRUCTIONS:
+1. Provide exactly 3 to 4 best English equivalents. Keep each nuanceExplanation and whenToUse concise (1-2 sentences maximum).
+2. Keep exampleSentenceEn and exampleSentenceId practical, short, and natural.
+3. Keep wordFamily (max 4 items), synonyms (max 4 items), antonyms (max 4 items).
+4. Output STRICTLY valid, well-formed JSON matching this exact structure:
 {
   "query": "${cleanWord}",
-  "summary": "Penjelasan ringkas 1-2 kalimat dalam bahasa Indonesia mengenai padanan kata ini.",
+  "summary": "Ringkasan 1-2 kalimat dalam bahasa Indonesia mengenai padanan kata ini.",
   "equivalents": [
     {
-      "word": "English word (e.g. king, monarch, etc.)",
-      "ipa": "/IPA phonetic/",
+      "word": "English word",
+      "ipa": "/IPA/",
       "partOfSpeech": "Noun / Verb / Adjective",
-      "formality": "Formal / Informal / Sastra",
-      "badge": "CIRIKHAS UTAMA",
-      "nuanceExplanation": "Penjelasan nuansa dan rasa bahasa dalam bahasa Indonesia.",
+      "formality": "Formal / Informal / Netral",
+      "badge": "CIRI KHAS",
+      "nuanceExplanation": "Penjelasan nuansa singkat dalam bahasa Indonesia.",
       "whenToUse": "Kapan tepatnya kata ini digunakan.",
-      "exampleSentenceEn": "Contoh kalimat bahasa Inggris.",
-      "exampleSentenceId": "Arti contoh kalimat dalam bahasa Indonesia."
+      "exampleSentenceEn": "Short natural English sentence.",
+      "exampleSentenceId": "Arti kalimat dalam bahasa Indonesia."
     }
   ],
   "wordFamily": [
@@ -387,7 +542,7 @@ Return STRICTLY valid JSON with these EXACT keys:
       "word": "kata turunan",
       "ipa": "/IPA/",
       "partOfSpeech": "Noun/Adj/Verb/Adv",
-      "meaning": "Arti kata turunan dalam bahasa Indonesia"
+      "meaning": "Arti kata turunan"
     }
   ],
   "synonyms": [
@@ -433,7 +588,7 @@ Return STRICTLY valid JSON with these EXACT keys:
     }
   },
 
-  // Parse JSON safely from AI output with smart normalization
+  // Parse JSON safely from AI output with smart normalization & auto-repair
   parseJsonSafely(rawContent, originalWord) {
     let clean = (rawContent || '').trim();
     if (clean.startsWith('```json')) {
@@ -442,14 +597,81 @@ Return STRICTLY valid JSON with these EXACT keys:
       clean = clean.replace(/^```\s*/, '').replace(/\s*```$/, '');
     }
 
-    const match = clean.match(/\{[\s\S]*\}/);
-    if (match) {
-      try {
-        const parsed = JSON.parse(match[0]);
-        return this.normalizeParsedResult(parsed, originalWord);
-      } catch (e) {
-        console.warn('Failed to parse AI JSON, attempting recovery:', e);
+    // 1. Direct JSON parse
+    try {
+      const parsed = JSON.parse(clean);
+      return this.normalizeParsedResult(parsed, originalWord);
+    } catch (e1) {
+      // Continue to bracket repair
+    }
+
+    // 2. Extract substring between first { and last }
+    const firstBrace = clean.indexOf('{');
+    if (firstBrace !== -1) {
+      const lastBrace = clean.lastIndexOf('}');
+      if (lastBrace > firstBrace) {
+        try {
+          const candidate = clean.slice(firstBrace, lastBrace + 1);
+          const parsed = JSON.parse(candidate);
+          return this.normalizeParsedResult(parsed, originalWord);
+        } catch (e2) {
+          // Continue to truncate repair
+        }
       }
+
+      // 3. Auto-repair truncated JSON (e.g. cut off inside equivalents array)
+      try {
+        let repaired = clean.slice(firstBrace);
+        const lastObjectEnd = repaired.lastIndexOf('}');
+        if (lastObjectEnd !== -1) {
+          repaired = repaired.slice(0, lastObjectEnd + 1);
+          const openBrackets = (repaired.match(/\[/g) || []).length;
+          const closeBrackets = (repaired.match(/\]/g) || []).length;
+          for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
+          const openBraces = (repaired.match(/\{/g) || []).length;
+          const closeBraces = (repaired.match(/\}/g) || []).length;
+          for (let i = 0; i < openBraces - closeBraces; i++) repaired += '}';
+
+          const parsed = JSON.parse(repaired);
+          return this.normalizeParsedResult(parsed, originalWord);
+        }
+      } catch (e3) {
+        console.warn('Truncation recovery failed:', e3);
+      }
+    }
+
+    // 4. Regex extraction fallback for individual equivalent objects
+    try {
+      const regex = /"word"\s*:\s*"([^"]+)"[\s\S]*?"nuanceExplanation"\s*:\s*"([^"]+)"[\s\S]*?"exampleSentenceEn"\s*:\s*"([^"]+)"/g;
+      let m;
+      const extractedEquivalents = [];
+      while ((m = regex.exec(clean)) !== null) {
+        extractedEquivalents.push({
+          word: m[1],
+          ipa: '',
+          partOfSpeech: 'Word',
+          formality: 'Netral',
+          badge: 'PADANAN KATA',
+          nuanceExplanation: m[2],
+          whenToUse: 'Dapat digunakan dalam percakapan.',
+          exampleSentenceEn: m[3],
+          exampleSentenceId: ''
+        });
+      }
+
+      if (extractedEquivalents.length > 0) {
+        return {
+          query: originalWord,
+          summary: `Padanan kata bahasa Inggris untuk "${originalWord}" mencakup beberapa istilah berikut.`,
+          equivalents: extractedEquivalents,
+          wordFamily: [],
+          synonyms: [],
+          antonyms: [],
+          commonMistakes: ''
+        };
+      }
+    } catch (e4) {
+      console.warn('Regex extraction failed:', e4);
     }
 
     return this.generateDynamicFallback(originalWord);
@@ -579,33 +801,35 @@ Return STRICTLY valid JSON with these EXACT keys:
 
   // Dynamic fallback when AI is unreachable
   generateDynamicFallback(word) {
-    const capitalized = word.charAt(0).toUpperCase() + word.slice(1);
+    const cleanWord = (word || '').trim().toLowerCase();
+    const translatedWord = translateOffline(cleanWord, 'id') || cleanWord;
+    const isRealTranslation = translatedWord && translatedWord.toLowerCase() !== cleanWord;
+    const primaryEnglishWord = isRealTranslation ? translatedWord : cleanWord;
+
     return {
       query: word,
-      summary: `Padanan kata bahasa Inggris untuk "${word}" memiliki nuansa yang bervariasi sesuai konteks kalimat.`,
+      summary: `Padanan kata bahasa Inggris untuk "${word}" utamanya adalah "${primaryEnglishWord}".`,
       equivalents: [
         {
-          word: `${word} (general)`,
-          ipa: '/.../',
-          partOfSpeech: 'Noun / Adjective',
+          word: primaryEnglishWord,
+          ipa: '',
+          partOfSpeech: 'Padanan Kata',
           formality: 'Netral',
-          badge: 'UMUM',
-          nuanceExplanation: `Kata ini adalah padanan umum dalam bahasa Inggris untuk menyatakan makna ${word}.`,
-          whenToUse: 'Bisa dipakai dalam situasi percakapan umum.',
-          exampleSentenceEn: `This is an example sentence for ${word}.`,
-          exampleSentenceId: `Ini adalah contoh kalimat untuk ${word}.`
+          badge: 'PADANAN DASAR',
+          nuanceExplanation: `Kata "${primaryEnglishWord}" adalah padanan umum bahasa Inggris untuk "${word}".`,
+          whenToUse: `Dapat digunakan dalam percakapan sehari-hari saat membicarakan ${word}.`,
+          exampleSentenceEn: `The word "${primaryEnglishWord}" is commonly used in English conversations.`,
+          exampleSentenceId: `Kata "${primaryEnglishWord}" umumnya digunakan dalam percakapan bahasa Inggris.`
         }
       ],
-      wordFamily: [
-        { word: `${word}ness`, ipa: '', partOfSpeech: 'Noun', meaning: `Karakteristik atau keadaan ${word}` }
-      ],
-      synonyms: [
-        { word: 'similar term', nuance: 'Konteks mirip' }
-      ],
-      antonyms: [
-        { word: 'opposite term', meaning: 'Kebalikan' }
-      ],
-      commonMistakes: 'Perhatikan apakah kata yang digunakan berfungsi sebagai kata sifat (adjective), kata benda (noun), atau kata kerja (verb).'
+      wordFamily: isRealTranslation ? [
+        { word: primaryEnglishWord, ipa: '', partOfSpeech: 'Word', meaning: `Padanan kata untuk ${word}` }
+      ] : [],
+      synonyms: isRealTranslation ? [
+        { word: primaryEnglishWord, nuance: 'Padanan kata langsung' }
+      ] : [],
+      antonyms: [],
+      commonMistakes: 'Pastikan memilih bentuk kata yang tepat (apakah kata benda, kata sifat, atau kata kerja) sesuai dengan kalimat Anda.'
     };
   }
 };
