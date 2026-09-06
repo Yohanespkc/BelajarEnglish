@@ -36,11 +36,12 @@ export const PROVIDER_METADATA = {
     badge: 'FREE TIER 🌟',
     recommended: false,
     description: 'Model multimodal Google dengan pemahaman bahasa Indonesia & Inggris yang sangat natural.',
-    defaultModel: 'gemini-flash-latest',
+    defaultModel: 'gemini-3.6-flash',
     availableModels: [
-      { id: 'gemini-flash-latest', label: 'Gemini Flash (Rekomendasi - Cepat & Stabil)' },
-      { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash (Respon Kilat)' },
+      { id: 'gemini-3.6-flash', label: 'Gemini 3.6 Flash (Rekomendasi Google - Stabil & Cepat)' },
+      { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash Lite (Super Ringan)' },
       { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (Next-Gen)' },
+      { id: 'gemini-flash-latest', label: 'Gemini Flash Latest' },
       { id: 'gemini-pro-latest', label: 'Gemini Pro (Penalaran Mendalam)' }
     ],
     getKeyUrl: 'https://aistudio.google.com/app/apikey',
@@ -90,8 +91,8 @@ export const aiProviderService = {
     const model = String(rawModel).trim();
 
     if (provider === AI_PROVIDERS.GEMINI) {
-      if (!model.startsWith('gemini') || model === 'gemini-1.5-flash') {
-        return meta.defaultModel || 'gemini-flash-latest';
+      if (!model.startsWith('gemini') || ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash'].includes(model)) {
+        return meta.defaultModel || 'gemini-3.6-flash';
       }
       return model;
     }
@@ -395,16 +396,17 @@ export const aiProviderService = {
         };
       }
 
-      const preferredModel = (targetModel && targetModel.startsWith('gemini') && targetModel !== 'gemini-1.5-flash') 
+      const preferredModel = (targetModel && targetModel.startsWith('gemini') && !['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash'].includes(targetModel)) 
         ? targetModel 
-        : 'gemini-flash-latest';
+        : 'gemini-3.6-flash';
 
       const candidateModels = [
         preferredModel,
-        'gemini-2.5-flash',
-        'gemini-2.0-flash',
+        'gemini-3.6-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-3.8-flash',
         'gemini-flash-latest',
-        'gemini-2.0-flash-lite'
+        'gemini-pro-latest'
       ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
 
       let lastError = null;

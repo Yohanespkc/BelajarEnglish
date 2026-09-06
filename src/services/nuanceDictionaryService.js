@@ -500,7 +500,24 @@ export const nuanceDictionaryService = {
       throw new Error('Masukkan satu kata bahasa Indonesia.');
     }
 
-    // 1. Check if exact match exists in built-in offline database
+    // Check if user has active AI configured
+    const config = aiProviderService.getConfig();
+    const hasAi = (config.provider === 'gemini' && config.geminiApiKey) ||
+                  (config.provider === 'groq' && config.groqApiKey) ||
+                  (config.provider === 'openai' && config.openaiApiKey) ||
+                  (config.provider === 'ollama');
+
+    // 1. If AI is configured, query the active AI Engine directly for real-time intelligence!
+    if (hasAi) {
+      try {
+        const aiResult = await this.queryAiNuance(cleanWord);
+        return aiResult;
+      } catch (err) {
+        console.warn('Live AI Nuance query failed, switching to verified lexical database:', err);
+      }
+    }
+
+    // 2. Fallback to built-in verified database
     if (BUILTIN_WORD_DATABASE[cleanWord]) {
       return {
         success: true,
@@ -510,9 +527,18 @@ export const nuanceDictionaryService = {
       };
     }
 
-    // 2. Query AI (Google Gemini, Groq, or active provider)
-    try {
-      const systemPrompt = `You are an expert Bilingual Lexicographer and English-Indonesian Translator.
+    // 3. Fallback to smart offline dictionary
+    return {
+      success: true,
+      data: this.generateDynamicFallback(cleanWord),
+      source: 'Smart Offline Fallback',
+      isAiGenerated: false
+    };
+  },
+
+  // Dedicated AI Nuance query method
+  async queryAiNuance(cleanWord) {
+    const systemPrompt = `You are an expert Bilingual Lexicographer and English-Indonesian Translator.
 The user will provide ONE Indonesian word (for example: "${cleanWord}").
 Your goal is to give a comprehensive English thesaurus breakdown with clear nuanced differences in Indonesian.
 
@@ -560,32 +586,22 @@ STRICT INSTRUCTIONS:
   "commonMistakes": "Tips kesalahan umum orang Indonesia saat memakai kata ini."
 }`;
 
-      const response = await aiProviderService.chatCompletion({
-        systemPrompt,
-        messages: [
-          { role: 'user', content: `Analisis padanan kata, nuansa, sinonim, antonim, dan turunan kata bahasa Inggris untuk kata Indonesia ini: "${cleanWord}"` }
-        ],
-        temperature: 0.25,
-        jsonMode: true
-      });
+    const response = await aiProviderService.chatCompletion({
+      systemPrompt,
+      messages: [
+        { role: 'user', content: `Analisis padanan kata, nuansa, sinonim, antonim, dan turunan kata bahasa Inggris untuk kata Indonesia ini: "${cleanWord}"` }
+      ],
+      temperature: 0.25,
+      jsonMode: true
+    });
 
-      const parsed = this.parseJsonSafely(response.content, cleanWord);
-      return {
-        success: true,
-        data: parsed,
-        source: `${response.providerName} (${response.modelUsed})`,
-        isAiGenerated: true
-      };
-    } catch (err) {
-      console.warn('AI Nuance dictionary query failed, generating dynamic fallback:', err);
-      return {
-        success: true,
-        data: this.generateDynamicFallback(cleanWord),
-        source: 'Smart Offline Fallback',
-        isAiGenerated: false,
-        warning: `AI (${err.message || 'Offline'}). Menampilkan hasil leksikal dasar.`
-      };
-    }
+    const parsed = this.parseJsonSafely(response.content, cleanWord);
+    return {
+      success: true,
+      data: parsed,
+      source: `${response.providerName} (${response.modelUsed})`,
+      isAiGenerated: true
+    };
   },
 
   // Parse JSON safely from AI output with smart normalization & auto-repair
