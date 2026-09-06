@@ -33,24 +33,20 @@ export const QUICK_LINGUISTICS_QUESTIONS = [
   }
 ];
 
+import { aiProviderService } from './aiProviderService';
+
 export const linguisticsTutorService = {
-  // Fetch available models from Ollama
-  async getAvailableModels() {
+  // Fetch available models from active AI provider
+  async getAvailableModels(providerOverride = null) {
     try {
-      const response = await fetch('/api/ollama/api/tags', {
-        headers: { 'Accept': 'application/json' },
-        signal: AbortSignal.timeout(3000)
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.models && data.models.length > 0) {
-          return data.models.map(m => m.name);
-        }
+      const models = await aiProviderService.getModels(providerOverride);
+      if (models && models.length > 0) {
+        return models.map(m => typeof m === 'string' ? m : m.id);
       }
     } catch (e) {
-      console.warn('Ollama tags lookup failed, using fallback list:', e);
+      console.warn('AI provider models lookup failed, using fallback list:', e);
     }
-    return ['gemma3:4b', 'gemma4:latest', 'gpt-oss:20b', 'qwen2.5:0.5b'];
+    return ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'gemma3:4b', 'gemini-1.5-flash'];
   },
 
   // Build specialized prompt for linguistic analysis
@@ -194,54 +190,40 @@ Return ONLY valid JSON. Avoid extra commentary outside the JSON block.`;
     }
 
     try {
-      const result = await this.queryOllama(query, model);
+      const result = await this.queryAI(query, model);
       return result;
     } catch (err) {
-      console.warn('Ollama linguistics call failed, falling back to smart heuristic:', err);
+      console.warn('AI provider linguistics call failed, falling back to smart heuristic:', err);
       const fallbackData = this.generateDynamicFallback(query);
       return {
         success: true,
         data: fallbackData,
         modelUsed: 'Analisis Linguistik Offline',
         isAiGenerated: false,
-        warning: 'Local Ollama sedang sibuk atau offline. Menampilkan hasil analisis komprehensif dari database linguistik offline.'
+        warning: `AI (${err.message || 'Tidak merespons'}). Menampilkan hasil analisis komprehensif dari database offline.`
       };
     }
   },
 
-  // Query Ollama API
-  async queryOllama(query, model) {
+  // Query AI API
+  async queryAI(query, model) {
     const systemPrompt = this.buildSystemPrompt();
 
-    const response = await fetch('/api/ollama/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: model || 'gemma3:4b',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: query }
-        ],
-        stream: false,
-        options: {
-          temperature: 0.3
-        }
-      }),
-      signal: AbortSignal.timeout(45000)
+    const result = await aiProviderService.chatCompletion({
+      systemPrompt,
+      messages: [
+        { role: 'user', content: query }
+      ],
+      model,
+      temperature: 0.3,
+      jsonMode: true
     });
 
-    if (!response.ok) {
-      throw new Error(`Ollama response error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const rawContent = data.message?.content || '';
-
-    const parsedData = this.parseJsonLinguistics(rawContent, query);
+    const parsedData = this.parseJsonLinguistics(result.content, query);
     return {
       success: true,
       data: parsedData,
-      modelUsed: data.model || model,
+      modelUsed: `${result.providerName}: ${result.modelUsed}`,
       isAiGenerated: true
     };
   },
